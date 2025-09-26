@@ -53,23 +53,23 @@ class PopulationEnv:
         self.time = 0
 
     def create_agents(self, idx):
-        if idx in [0]:
+        if idx in [0, 1]:
             # create always defect player.
             agent = AlwaysDefectAgent(id_=idx, history_len=self.history_len, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
             agent.agent_type = 'always_defect'
-        elif idx in [1]:
+        elif idx in [2, 3]:
             # create always cooperate player.
             agent = AlwaysCooperateAgent(id_=idx, history_len=self.history_len, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
             agent.agent_type = 'always_cooperate'
-        elif idx in [2]:
+        elif idx in [4, 5]:
             # create random player.
             agent = RandomAgent(id_=idx, history_len=self.history_len, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
             agent.agent_type = 'random'
-        elif idx in [3, 4]:
+        elif idx in [6, 7]:
             # create eye-for-eye player.
             agent = EyeForEyeAgent(id_=idx, history_len=self.history_len, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
             agent.agent_type = 'eye_for_eye'
-        elif idx in [5, 6]:
+        elif idx in [8, 9]:
             agent = AggressiveEyeForEyeAgent(id_=idx, history_len=self.history_len, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
             agent.agent_type = 'aggressive_eye_for_eye'
         else:
