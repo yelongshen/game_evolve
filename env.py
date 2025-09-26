@@ -50,8 +50,8 @@ class PopulationEnv:
         self.type_counts = defaultdict(int)
 
         self.agents = [self.create_agents(i) for i in range(N)]
-    self.time = 0
-    self.payoff = get_payoff(payoff_type)
+        self.time = 0
+        self.payoff = get_payoff(payoff_type)
 
     def create_agents(self, idx):
         if idx in [0, 1]:
