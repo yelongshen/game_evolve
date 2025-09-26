@@ -194,7 +194,7 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
             # summary printout plus buffer/trainer status
             buf_size = len(env.global_buffer.storage)
             trainer_active = getattr(env.trainer, '_last_update_count', 0) > 0
-            print(f"t={t:6d} coop_rate={coop_rate:.4f} avg_reward={avg_reward:.4f} global_avg={global_avg:.4f} buffer_size={buf_size} trainer_active={trainer_active}")
+            logger.info(f"t={t:6d} coop_rate={coop_rate:.4f} avg_reward={avg_reward:.4f} global_avg={global_avg:.4f} buffer_size={buf_size} trainer_active={trainer_active}")
             # compute per-agent-type average rewards (cumulative)
             try:
                 type_stats = []
