@@ -1,0 +1,421 @@
+t=   100 coop_rate=0.4800 avg_reward=2.2120 global_avg=2.2120 buffer_size=2 trainer_active=False
+t=   200 coop_rate=0.4660 avg_reward=2.1800 global_avg=2.1960 buffer_size=49 trainer_active=False
+t=   300 coop_rate=0.4835 avg_reward=2.2135 global_avg=2.2018 buffer_size=97 trainer_active=False
+t=   400 coop_rate=0.4570 avg_reward=2.1690 global_avg=2.1936 buffer_size=132 trainer_active=False
+t=   500 coop_rate=0.4795 avg_reward=2.2225 global_avg=2.1994 buffer_size=168 trainer_active=False
+t=   600 coop_rate=0.4555 avg_reward=2.1635 global_avg=2.1934 buffer_size=206 trainer_active=False
+t=   700 coop_rate=0.4515 avg_reward=2.1495 global_avg=2.1871 buffer_size=247 trainer_active=False
+2025-09-23 17:39:38,280 INFO:env: Trainer performed a synchronous update at t=731; buffer_size=226
+t=   800 coop_rate=0.4430 avg_reward=2.1480 global_avg=2.1822 buffer_size=253 trainer_active=False
+2025-09-23 17:40:09,933 INFO:env: Trainer performed a synchronous update at t=811; buffer_size=226
+2025-09-23 17:40:39,660 INFO:env: Trainer performed a synchronous update at t=882; buffer_size=226
+t=   900 coop_rate=0.3505 avg_reward=1.9255 global_avg=2.1537 buffer_size=234 trainer_active=False
+2025-09-23 17:41:08,580 INFO:env: Trainer performed a synchronous update at t=957; buffer_size=226
+t=  1000 coop_rate=0.2985 avg_reward=1.8145 global_avg=2.1198 buffer_size=241 trainer_active=False
+2025-09-23 17:41:39,354 INFO:env: Trainer performed a synchronous update at t=1042; buffer_size=226
+t=  1100 coop_rate=0.3315 avg_reward=1.8865 global_avg=2.0986 buffer_size=247 trainer_active=False
+2025-09-23 17:42:10,752 INFO:env: Trainer performed a synchronous update at t=1123; buffer_size=227
+2025-09-23 17:42:40,491 INFO:env: Trainer performed a synchronous update at t=1193; buffer_size=226
+t=  1200 coop_rate=0.4075 avg_reward=2.0565 global_avg=2.0951 buffer_size=229 trainer_active=False
+2025-09-23 17:43:12,901 INFO:env: Trainer performed a synchronous update at t=1281; buffer_size=226
+t=  1300 coop_rate=0.3335 avg_reward=1.8895 global_avg=2.0793 buffer_size=234 trainer_active=False
+2025-09-23 17:43:43,976 INFO:env: Trainer performed a synchronous update at t=1359; buffer_size=227
+t=  1400 coop_rate=0.3095 avg_reward=1.8365 global_avg=2.0619 buffer_size=245 trainer_active=False
+2025-09-23 17:44:14,870 INFO:env: Trainer performed a synchronous update at t=1435; buffer_size=227
+t=  1500 coop_rate=0.3300 avg_reward=1.8680 global_avg=2.0490 buffer_size=250 trainer_active=False
+2025-09-23 17:44:42,750 INFO:env: Trainer performed a synchronous update at t=1507; buffer_size=226
+2025-09-23 17:45:12,179 INFO:env: Trainer performed a synchronous update at t=1591; buffer_size=226
+t=  1600 coop_rate=0.3540 avg_reward=1.9390 global_avg=2.0421 buffer_size=228 trainer_active=False
+2025-09-23 17:45:42,457 INFO:env: Trainer performed a synchronous update at t=1666; buffer_size=226
+t=  1700 coop_rate=0.3145 avg_reward=1.8515 global_avg=2.0309 buffer_size=236 trainer_active=False
+2025-09-23 17:46:14,481 INFO:env: Trainer performed a synchronous update at t=1746; buffer_size=226
+t=  1800 coop_rate=0.2345 avg_reward=1.6525 global_avg=2.0099 buffer_size=244 trainer_active=False
+2025-09-23 17:46:44,419 INFO:env: Trainer performed a synchronous update at t=1819; buffer_size=226
+2025-09-23 17:47:13,974 INFO:env: Trainer performed a synchronous update at t=1897; buffer_size=226
+t=  1900 coop_rate=0.2380 avg_reward=1.6550 global_avg=1.9912 buffer_size=226 trainer_active=False
+2025-09-23 17:47:47,235 INFO:env: Trainer performed a synchronous update at t=1987; buffer_size=227
+t=  2000 coop_rate=0.2160 avg_reward=1.6010 global_avg=1.9717 buffer_size=232 trainer_active=False
+2025-09-23 17:48:15,682 INFO:env: Trainer performed a synchronous update at t=2064; buffer_size=226
+t=  2100 coop_rate=0.2070 avg_reward=1.5760 global_avg=1.9529 buffer_size=241 trainer_active=False
+2025-09-23 17:48:45,639 INFO:env: Trainer performed a synchronous update at t=2139; buffer_size=226
+t=  2200 coop_rate=0.1935 avg_reward=1.5475 global_avg=1.9344 buffer_size=247 trainer_active=False
+2025-09-23 17:49:14,897 INFO:env: Trainer performed a synchronous update at t=2211; buffer_size=226
+t=  2300 coop_rate=0.2195 avg_reward=1.6145 global_avg=1.9205 buffer_size=254 trainer_active=False
+2025-09-23 17:49:47,165 INFO:env: Trainer performed a synchronous update at t=2303; buffer_size=226
+2025-09-23 17:50:15,890 INFO:env: Trainer performed a synchronous update at t=2378; buffer_size=226
+t=  2400 coop_rate=0.1900 avg_reward=1.5270 global_avg=1.9041 buffer_size=236 trainer_active=False
+2025-09-23 17:50:45,176 INFO:env: Trainer performed a synchronous update at t=2451; buffer_size=226
+t=  2500 coop_rate=0.1660 avg_reward=1.4720 global_avg=1.8868 buffer_size=244 trainer_active=False
+2025-09-23 17:51:16,870 INFO:env: Trainer performed a synchronous update at t=2539; buffer_size=228
+t=  2600 coop_rate=0.1610 avg_reward=1.4570 global_avg=1.8703 buffer_size=253 trainer_active=False
+2025-09-23 17:51:48,102 INFO:env: Trainer performed a synchronous update at t=2616; buffer_size=226
+2025-09-23 17:52:15,437 INFO:env: Trainer performed a synchronous update at t=2688; buffer_size=226
+t=  2700 coop_rate=0.1655 avg_reward=1.4665 global_avg=1.8554 buffer_size=231 trainer_active=False
+2025-09-23 17:52:45,493 INFO:env: Trainer performed a synchronous update at t=2763; buffer_size=226
+t=  2800 coop_rate=0.1730 avg_reward=1.4960 global_avg=1.8425 buffer_size=240 trainer_active=False
+2025-09-23 17:53:17,142 INFO:env: Trainer performed a synchronous update at t=2853; buffer_size=226
+t=  2900 coop_rate=0.1530 avg_reward=1.4320 global_avg=1.8284 buffer_size=252 trainer_active=False
+2025-09-23 17:53:43,590 INFO:env: Trainer performed a synchronous update at t=2921; buffer_size=226
+t=  3000 coop_rate=0.1445 avg_reward=1.4085 global_avg=1.8144 buffer_size=253 trainer_active=False
+2025-09-23 17:54:13,826 INFO:env: Trainer performed a synchronous update at t=3004; buffer_size=227
+2025-09-23 17:54:44,514 INFO:env: Trainer performed a synchronous update at t=3086; buffer_size=227
+t=  3100 coop_rate=0.1520 avg_reward=1.4380 global_avg=1.8022 buffer_size=232 trainer_active=False
+2025-09-23 17:55:12,891 INFO:env: Trainer performed a synchronous update at t=3159; buffer_size=226
+t=  3200 coop_rate=0.1310 avg_reward=1.3670 global_avg=1.7886 buffer_size=240 trainer_active=False
+2025-09-23 17:55:41,456 INFO:env: Trainer performed a synchronous update at t=3234; buffer_size=227
+t=  3300 coop_rate=0.1170 avg_reward=1.3370 global_avg=1.7749 buffer_size=247 trainer_active=False
+2025-09-23 17:56:13,180 INFO:env: Trainer performed a synchronous update at t=3324; buffer_size=226
+2025-09-23 17:56:40,017 INFO:env: Trainer performed a synchronous update at t=3389; buffer_size=227
+t=  3400 coop_rate=0.1130 avg_reward=1.3240 global_avg=1.7617 buffer_size=228 trainer_active=False
+2025-09-23 17:57:08,963 INFO:env: Trainer performed a synchronous update at t=3472; buffer_size=226
+t=  3500 coop_rate=0.1395 avg_reward=1.3975 global_avg=1.7513 buffer_size=240 trainer_active=False
+2025-09-23 17:57:38,960 INFO:env: Trainer performed a synchronous update at t=3559; buffer_size=226
+t=  3600 coop_rate=0.1325 avg_reward=1.3815 global_avg=1.7410 buffer_size=244 trainer_active=False
+2025-09-23 17:58:06,415 INFO:env: Trainer performed a synchronous update at t=3627; buffer_size=226
+t=  3700 coop_rate=0.1225 avg_reward=1.3485 global_avg=1.7304 buffer_size=250 trainer_active=False
+2025-09-23 17:58:36,894 INFO:env: Trainer performed a synchronous update at t=3712; buffer_size=226
+2025-09-23 17:59:02,634 INFO:env: Trainer performed a synchronous update at t=3779; buffer_size=226
+t=  3800 coop_rate=0.1265 avg_reward=1.3585 global_avg=1.7206 buffer_size=230 trainer_active=False
+2025-09-23 17:59:33,875 INFO:env: Trainer performed a synchronous update at t=3869; buffer_size=226
+t=  3900 coop_rate=0.1210 avg_reward=1.3490 global_avg=1.7111 buffer_size=241 trainer_active=False
+2025-09-23 18:00:00,345 INFO:env: Trainer performed a synchronous update at t=3936; buffer_size=226
+t=  4000 coop_rate=0.1020 avg_reward=1.2920 global_avg=1.7006 buffer_size=246 trainer_active=False
+2025-09-23 18:00:30,276 INFO:env: Trainer performed a synchronous update at t=4015; buffer_size=226
+t=  4100 coop_rate=0.0905 avg_reward=1.2665 global_avg=1.6900 buffer_size=255 trainer_active=False
+2025-09-23 18:01:00,703 INFO:env: Trainer performed a synchronous update at t=4101; buffer_size=226
+2025-09-23 18:01:28,778 INFO:env: Trainer performed a synchronous update at t=4170; buffer_size=227
+t=  4200 coop_rate=0.0770 avg_reward=1.2220 global_avg=1.6789 buffer_size=235 trainer_active=False
+2025-09-23 18:02:01,837 INFO:env: Trainer performed a synchronous update at t=4261; buffer_size=226
+t=  4300 coop_rate=0.0660 avg_reward=1.1950 global_avg=1.6676 buffer_size=244 trainer_active=False
+2025-09-23 18:02:30,481 INFO:env: Trainer performed a synchronous update at t=4337; buffer_size=227
+t=  4400 coop_rate=0.0605 avg_reward=1.1745 global_avg=1.6564 buffer_size=250 trainer_active=False
+2025-09-23 18:02:58,040 INFO:env: Trainer performed a synchronous update at t=4409; buffer_size=226
+t=  4500 coop_rate=0.0575 avg_reward=1.1695 global_avg=1.6456 buffer_size=255 trainer_active=False
+2025-09-23 18:03:29,656 INFO:env: Trainer performed a synchronous update at t=4501; buffer_size=226
+2025-09-23 18:03:56,466 INFO:env: Trainer performed a synchronous update at t=4568; buffer_size=226
+t=  4600 coop_rate=0.0565 avg_reward=1.1695 global_avg=1.6352 buffer_size=239 trainer_active=False
+2025-09-23 18:04:26,093 INFO:env: Trainer performed a synchronous update at t=4653; buffer_size=226
+t=  4700 coop_rate=0.0680 avg_reward=1.2010 global_avg=1.6260 buffer_size=244 trainer_active=False
+2025-09-23 18:04:54,062 INFO:env: Trainer performed a synchronous update at t=4728; buffer_size=226
+t=  4800 coop_rate=0.0690 avg_reward=1.2040 global_avg=1.6172 buffer_size=255 trainer_active=False
+2025-09-23 18:05:22,316 INFO:env: Trainer performed a synchronous update at t=4801; buffer_size=227
+2025-09-23 18:05:52,406 INFO:env: Trainer performed a synchronous update at t=4885; buffer_size=226
+t=  4900 coop_rate=0.0755 avg_reward=1.2185 global_avg=1.6091 buffer_size=233 trainer_active=False
+2025-09-23 18:06:24,301 INFO:env: Trainer performed a synchronous update at t=4979; buffer_size=226
+t=  5000 coop_rate=0.0800 avg_reward=1.2320 global_avg=1.6015 buffer_size=237 trainer_active=False
+2025-09-23 18:06:49,289 INFO:env: Trainer performed a synchronous update at t=5038; buffer_size=226
+t=  5100 coop_rate=0.0685 avg_reward=1.2005 global_avg=1.5937 buffer_size=246 trainer_active=False
+2025-09-23 18:07:20,825 INFO:env: Trainer performed a synchronous update at t=5133; buffer_size=226
+2025-09-23 18:07:48,396 INFO:env: Trainer performed a synchronous update at t=5198; buffer_size=226
+t=  5200 coop_rate=0.0605 avg_reward=1.1765 global_avg=1.5856 buffer_size=228 trainer_active=False
+2025-09-23 18:08:19,586 INFO:env: Trainer performed a synchronous update at t=5277; buffer_size=227
+t=  5300 coop_rate=0.0485 avg_reward=1.1415 global_avg=1.5773 buffer_size=236 trainer_active=False
+2025-09-23 18:08:49,128 INFO:env: Trainer performed a synchronous update at t=5361; buffer_size=226
+t=  5400 coop_rate=0.0500 avg_reward=1.1490 global_avg=1.5693 buffer_size=244 trainer_active=False
+2025-09-23 18:09:17,826 INFO:env: Trainer performed a synchronous update at t=5431; buffer_size=226
+t=  5500 coop_rate=0.0660 avg_reward=1.1960 global_avg=1.5625 buffer_size=246 trainer_active=False
+2025-09-23 18:09:49,379 INFO:env: Trainer performed a synchronous update at t=5517; buffer_size=226
+2025-09-23 18:10:15,273 INFO:env: Trainer performed a synchronous update at t=5579; buffer_size=226
+t=  5600 coop_rate=0.0535 avg_reward=1.1575 global_avg=1.5553 buffer_size=231 trainer_active=False
+2025-09-23 18:10:47,078 INFO:env: Trainer performed a synchronous update at t=5674; buffer_size=226
+t=  5700 coop_rate=0.0550 avg_reward=1.1640 global_avg=1.5484 buffer_size=238 trainer_active=False
+2025-09-23 18:11:16,310 INFO:env: Trainer performed a synchronous update at t=5753; buffer_size=226
+t=  5800 coop_rate=0.0445 avg_reward=1.1325 global_avg=1.5413 buffer_size=247 trainer_active=False
+2025-09-23 18:11:45,449 INFO:env: Trainer performed a synchronous update at t=5828; buffer_size=226
+t=  5900 coop_rate=0.0385 avg_reward=1.1145 global_avg=1.5340 buffer_size=251 trainer_active=False
+2025-09-23 18:12:15,907 INFO:env: Trainer performed a synchronous update at t=5913; buffer_size=226
+2025-09-23 18:12:43,627 INFO:env: Trainer performed a synchronous update at t=5982; buffer_size=226
+t=  6000 coop_rate=0.0370 avg_reward=1.1100 global_avg=1.5270 buffer_size=232 trainer_active=False
+2025-09-23 18:13:12,722 INFO:env: Trainer performed a synchronous update at t=6061; buffer_size=227
+t=  6100 coop_rate=0.0440 avg_reward=1.1300 global_avg=1.5205 buffer_size=243 trainer_active=False
+2025-09-23 18:13:44,836 INFO:env: Trainer performed a synchronous update at t=6148; buffer_size=226
+t=  6200 coop_rate=0.0370 avg_reward=1.1100 global_avg=1.5138 buffer_size=252 trainer_active=False
+2025-09-23 18:14:13,662 INFO:env: Trainer performed a synchronous update at t=6221; buffer_size=226
+t=  6300 coop_rate=0.0410 avg_reward=1.1210 global_avg=1.5076 buffer_size=255 trainer_active=False
+2025-09-23 18:14:43,481 INFO:env: Trainer performed a synchronous update at t=6301; buffer_size=226
+2025-09-23 18:15:14,530 INFO:env: Trainer performed a synchronous update at t=6387; buffer_size=226
+t=  6400 coop_rate=0.0395 avg_reward=1.1185 global_avg=1.5015 buffer_size=229 trainer_active=False
+2025-09-23 18:15:42,115 INFO:env: Trainer performed a synchronous update at t=6443; buffer_size=226
+t=  6500 coop_rate=0.0380 avg_reward=1.1140 global_avg=1.4956 buffer_size=242 trainer_active=False
+2025-09-23 18:16:18,139 INFO:env: Trainer performed a synchronous update at t=6545; buffer_size=226
+t=  6600 coop_rate=0.0360 avg_reward=1.1080 global_avg=1.4897 buffer_size=254 trainer_active=False
+2025-09-23 18:16:44,985 INFO:env: Trainer performed a synchronous update at t=6612; buffer_size=226
+2025-09-23 18:17:14,455 INFO:env: Trainer performed a synchronous update at t=6690; buffer_size=226
+t=  6700 coop_rate=0.0340 avg_reward=1.1020 global_avg=1.4839 buffer_size=230 trainer_active=False
+2025-09-23 18:17:43,588 INFO:env: Trainer performed a synchronous update at t=6772; buffer_size=226
+t=  6800 coop_rate=0.0245 avg_reward=1.0725 global_avg=1.4779 buffer_size=237 trainer_active=False
+2025-09-23 18:18:11,640 INFO:env: Trainer performed a synchronous update at t=6844; buffer_size=226
+t=  6900 coop_rate=0.0235 avg_reward=1.0695 global_avg=1.4719 buffer_size=244 trainer_active=False
+2025-09-23 18:18:41,357 INFO:env: Trainer performed a synchronous update at t=6924; buffer_size=227
+t=  7000 coop_rate=0.0190 avg_reward=1.0570 global_avg=1.4660 buffer_size=254 trainer_active=False
+2025-09-23 18:19:10,398 INFO:env: Trainer performed a synchronous update at t=7004; buffer_size=226
+2025-09-23 18:19:38,960 INFO:env: Trainer performed a synchronous update at t=7084; buffer_size=226
+t=  7100 coop_rate=0.0135 avg_reward=1.0405 global_avg=1.4600 buffer_size=231 trainer_active=False
+2025-09-23 18:20:06,844 INFO:env: Trainer performed a synchronous update at t=7155; buffer_size=226
+t=  7200 coop_rate=0.0185 avg_reward=1.0555 global_avg=1.4544 buffer_size=244 trainer_active=False
+2025-09-23 18:20:39,375 INFO:env: Trainer performed a synchronous update at t=7245; buffer_size=226
+t=  7300 coop_rate=0.0180 avg_reward=1.0540 global_avg=1.4489 buffer_size=252 trainer_active=False
+2025-09-23 18:21:06,923 INFO:env: Trainer performed a synchronous update at t=7316; buffer_size=227
+2025-09-23 18:21:36,028 INFO:env: Trainer performed a synchronous update at t=7387; buffer_size=226
+t=  7400 coop_rate=0.0195 avg_reward=1.0575 global_avg=1.4436 buffer_size=229 trainer_active=False
+2025-09-23 18:22:07,129 INFO:env: Trainer performed a synchronous update at t=7472; buffer_size=226
+t=  7500 coop_rate=0.0235 avg_reward=1.0695 global_avg=1.4386 buffer_size=235 trainer_active=False
+2025-09-23 18:22:35,125 INFO:env: Trainer performed a synchronous update at t=7549; buffer_size=226
+t=  7600 coop_rate=0.0160 avg_reward=1.0480 global_avg=1.4335 buffer_size=245 trainer_active=False
+2025-09-23 18:23:05,162 INFO:env: Trainer performed a synchronous update at t=7629; buffer_size=227
+t=  7700 coop_rate=0.0165 avg_reward=1.0495 global_avg=1.4285 buffer_size=254 trainer_active=False
+2025-09-23 18:23:33,911 INFO:env: Trainer performed a synchronous update at t=7707; buffer_size=226
+2025-09-23 18:24:04,217 INFO:env: Trainer performed a synchronous update at t=7785; buffer_size=227
+t=  7800 coop_rate=0.0110 avg_reward=1.0330 global_avg=1.4234 buffer_size=233 trainer_active=False
+2025-09-23 18:24:33,800 INFO:env: Trainer performed a synchronous update at t=7865; buffer_size=227
+t=  7900 coop_rate=0.0150 avg_reward=1.0440 global_avg=1.4186 buffer_size=240 trainer_active=False
+2025-09-23 18:25:01,826 INFO:env: Trainer performed a synchronous update at t=7940; buffer_size=226
+t=  8000 coop_rate=0.0180 avg_reward=1.0540 global_avg=1.4141 buffer_size=250 trainer_active=False
+2025-09-23 18:25:31,811 INFO:env: Trainer performed a synchronous update at t=8020; buffer_size=226
+2025-09-23 18:26:01,384 INFO:env: Trainer performed a synchronous update at t=8099; buffer_size=228
+t=  8100 coop_rate=0.0185 avg_reward=1.0555 global_avg=1.4097 buffer_size=228 trainer_active=False
+2025-09-23 18:26:29,621 INFO:env: Trainer performed a synchronous update at t=8175; buffer_size=226
+t=  8200 coop_rate=0.0185 avg_reward=1.0555 global_avg=1.4053 buffer_size=236 trainer_active=False
+2025-09-23 18:26:59,706 INFO:env: Trainer performed a synchronous update at t=8258; buffer_size=226
+t=  8300 coop_rate=0.0170 avg_reward=1.0510 global_avg=1.4011 buffer_size=243 trainer_active=False
+2025-09-23 18:27:26,518 INFO:env: Trainer performed a synchronous update at t=8328; buffer_size=226
+t=  8400 coop_rate=0.0095 avg_reward=1.0285 global_avg=1.3966 buffer_size=254 trainer_active=False
+2025-09-23 18:27:54,176 INFO:env: Trainer performed a synchronous update at t=8403; buffer_size=226
+2025-09-23 18:28:25,675 INFO:env: Trainer performed a synchronous update at t=8497; buffer_size=226
+t=  8500 coop_rate=0.0180 avg_reward=1.0540 global_avg=1.3926 buffer_size=229 trainer_active=False
+2025-09-23 18:28:53,116 INFO:env: Trainer performed a synchronous update at t=8570; buffer_size=226
+t=  8600 coop_rate=0.0140 avg_reward=1.0420 global_avg=1.3885 buffer_size=238 trainer_active=False
+2025-09-23 18:29:20,539 INFO:env: Trainer performed a synchronous update at t=8648; buffer_size=226
+t=  8700 coop_rate=0.0125 avg_reward=1.0365 global_avg=1.3845 buffer_size=244 trainer_active=False
+2025-09-23 18:29:48,967 INFO:env: Trainer performed a synchronous update at t=8722; buffer_size=227
+t=  8800 coop_rate=0.0150 avg_reward=1.0450 global_avg=1.3806 buffer_size=255 trainer_active=False
+2025-09-23 18:30:18,869 INFO:env: Trainer performed a synchronous update at t=8802; buffer_size=226
+2025-09-23 18:30:48,263 INFO:env: Trainer performed a synchronous update at t=8882; buffer_size=226
+t=  8900 coop_rate=0.0200 avg_reward=1.0580 global_avg=1.3770 buffer_size=232 trainer_active=False
+2025-09-23 18:31:17,346 INFO:env: Trainer performed a synchronous update at t=8962; buffer_size=226
+t=  9000 coop_rate=0.0140 avg_reward=1.0420 global_avg=1.3733 buffer_size=241 trainer_active=False
+2025-09-23 18:31:44,825 INFO:env: Trainer performed a synchronous update at t=9038; buffer_size=227
+t=  9100 coop_rate=0.0160 avg_reward=1.0480 global_avg=1.3697 buffer_size=251 trainer_active=False
+2025-09-23 18:32:12,857 INFO:env: Trainer performed a synchronous update at t=9115; buffer_size=226
+2025-09-23 18:32:42,359 INFO:env: Trainer performed a synchronous update at t=9197; buffer_size=227
+t=  9200 coop_rate=0.0125 avg_reward=1.0375 global_avg=1.3661 buffer_size=229 trainer_active=False
+2025-09-23 18:33:08,534 INFO:env: Trainer performed a synchronous update at t=9269; buffer_size=226
+t=  9300 coop_rate=0.0105 avg_reward=1.0315 global_avg=1.3625 buffer_size=237 trainer_active=False
+2025-09-23 18:33:37,323 INFO:env: Trainer performed a synchronous update at t=9356; buffer_size=226
+t=  9400 coop_rate=0.0110 avg_reward=1.0330 global_avg=1.3590 buffer_size=247 trainer_active=False
+2025-09-23 18:34:05,295 INFO:env: Trainer performed a synchronous update at t=9432; buffer_size=226
+t=  9500 coop_rate=0.0110 avg_reward=1.0330 global_avg=1.3556 buffer_size=252 trainer_active=False
+2025-09-23 18:34:33,926 INFO:env: Trainer performed a synchronous update at t=9504; buffer_size=226
+2025-09-23 18:35:02,459 INFO:env: Trainer performed a synchronous update at t=9589; buffer_size=226
+t=  9600 coop_rate=0.0070 avg_reward=1.0210 global_avg=1.3521 buffer_size=230 trainer_active=False
+2025-09-23 18:35:28,872 INFO:env: Trainer performed a synchronous update at t=9661; buffer_size=226
+t=  9700 coop_rate=0.0110 avg_reward=1.0330 global_avg=1.3488 buffer_size=241 trainer_active=False
+2025-09-23 18:35:58,319 INFO:env: Trainer performed a synchronous update at t=9737; buffer_size=227
+t=  9800 coop_rate=0.0110 avg_reward=1.0330 global_avg=1.3456 buffer_size=245 trainer_active=False
+2025-09-23 18:36:29,241 INFO:env: Trainer performed a synchronous update at t=9824; buffer_size=227
+t=  9900 coop_rate=0.0135 avg_reward=1.0405 global_avg=1.3425 buffer_size=256 trainer_active=False
+2025-09-23 18:36:56,185 INFO:env: Trainer performed a synchronous update at t=9900; buffer_size=226
+2025-09-23 18:37:22,517 INFO:env: Trainer performed a synchronous update at t=9970; buffer_size=226
+t= 10000 coop_rate=0.0075 avg_reward=1.0225 global_avg=1.3393 buffer_size=238 trainer_active=False
+2025-09-23 18:37:50,359 INFO:env: Trainer performed a synchronous update at t=10047; buffer_size=227
+t= 10100 coop_rate=0.0145 avg_reward=1.0425 global_avg=1.3363 buffer_size=240 trainer_active=False
+2025-09-23 18:38:18,043 INFO:env: Trainer performed a synchronous update at t=10128; buffer_size=226
+t= 10200 coop_rate=0.0100 avg_reward=1.0300 global_avg=1.3333 buffer_size=254 trainer_active=False
+2025-09-23 18:38:46,839 INFO:env: Trainer performed a synchronous update at t=10210; buffer_size=226
+2025-09-23 18:39:14,123 INFO:env: Trainer performed a synchronous update at t=10285; buffer_size=226
+t= 10300 coop_rate=0.0090 avg_reward=1.0270 global_avg=1.3304 buffer_size=232 trainer_active=False
+2025-09-23 18:39:42,639 INFO:env: Trainer performed a synchronous update at t=10364; buffer_size=226
+t= 10400 coop_rate=0.0105 avg_reward=1.0315 global_avg=1.3275 buffer_size=237 trainer_active=False
+2025-09-23 18:40:12,524 INFO:env: Trainer performed a synchronous update at t=10452; buffer_size=226
+t= 10500 coop_rate=0.0100 avg_reward=1.0300 global_avg=1.3247 buffer_size=248 trainer_active=False
+2025-09-23 18:40:39,939 INFO:env: Trainer performed a synchronous update at t=10524; buffer_size=226
+2025-09-23 18:41:07,700 INFO:env: Trainer performed a synchronous update at t=10598; buffer_size=227
+t= 10600 coop_rate=0.0100 avg_reward=1.0300 global_avg=1.3219 buffer_size=227 trainer_active=False
+2025-09-23 18:41:38,317 INFO:env: Trainer performed a synchronous update at t=10682; buffer_size=226
+t= 10700 coop_rate=0.0105 avg_reward=1.0315 global_avg=1.3192 buffer_size=232 trainer_active=False
+2025-09-23 18:42:07,394 INFO:env: Trainer performed a synchronous update at t=10757; buffer_size=226
+t= 10800 coop_rate=0.0105 avg_reward=1.0315 global_avg=1.3165 buffer_size=238 trainer_active=False
+2025-09-23 18:42:35,474 INFO:env: Trainer performed a synchronous update at t=10834; buffer_size=226
+t= 10900 coop_rate=0.0115 avg_reward=1.0345 global_avg=1.3139 buffer_size=249 trainer_active=False
+2025-09-23 18:43:05,572 INFO:env: Trainer performed a synchronous update at t=10918; buffer_size=226
+2025-09-23 18:43:32,869 INFO:env: Trainer performed a synchronous update at t=10990; buffer_size=226
+t= 11000 coop_rate=0.0060 avg_reward=1.0180 global_avg=1.3112 buffer_size=229 trainer_active=False
+2025-09-23 18:44:04,107 INFO:env: Trainer performed a synchronous update at t=11078; buffer_size=226
+t= 11100 coop_rate=0.0065 avg_reward=1.0195 global_avg=1.3086 buffer_size=236 trainer_active=False
+2025-09-23 18:44:31,350 INFO:env: Trainer performed a synchronous update at t=11148; buffer_size=227
+t= 11200 coop_rate=0.0075 avg_reward=1.0225 global_avg=1.3060 buffer_size=243 trainer_active=False
+2025-09-23 18:45:01,196 INFO:env: Trainer performed a synchronous update at t=11230; buffer_size=226
+t= 11300 coop_rate=0.0090 avg_reward=1.0270 global_avg=1.3036 buffer_size=254 trainer_active=False
+2025-09-23 18:45:29,398 INFO:env: Trainer performed a synchronous update at t=11304; buffer_size=226
+2025-09-23 18:45:57,708 INFO:env: Trainer performed a synchronous update at t=11382; buffer_size=226
+t= 11400 coop_rate=0.0035 avg_reward=1.0105 global_avg=1.3010 buffer_size=231 trainer_active=False
+2025-09-23 18:46:27,740 INFO:env: Trainer performed a synchronous update at t=11468; buffer_size=226
+t= 11500 coop_rate=0.0035 avg_reward=1.0105 global_avg=1.2985 buffer_size=240 trainer_active=False
+2025-09-23 18:46:57,341 INFO:env: Trainer performed a synchronous update at t=11551; buffer_size=226
+t= 11600 coop_rate=0.0060 avg_reward=1.0180 global_avg=1.2961 buffer_size=243 trainer_active=False
+2025-09-23 18:47:24,582 INFO:env: Trainer performed a synchronous update at t=11620; buffer_size=226
+t= 11700 coop_rate=0.0025 avg_reward=1.0075 global_avg=1.2936 buffer_size=252 trainer_active=False
+2025-09-23 18:47:55,711 INFO:env: Trainer performed a synchronous update at t=11710; buffer_size=226
+2025-09-23 18:48:19,371 INFO:env: Trainer performed a synchronous update at t=11770; buffer_size=226
+t= 11800 coop_rate=0.0025 avg_reward=1.0075 global_avg=1.2912 buffer_size=234 trainer_active=False
+2025-09-23 18:48:50,558 INFO:env: Trainer performed a synchronous update at t=11864; buffer_size=226
+t= 11900 coop_rate=0.0075 avg_reward=1.0225 global_avg=1.2889 buffer_size=244 trainer_active=False
+2025-09-23 18:49:16,889 INFO:env: Trainer performed a synchronous update at t=11931; buffer_size=226
+t= 12000 coop_rate=0.0040 avg_reward=1.0120 global_avg=1.2866 buffer_size=251 trainer_active=False
+2025-09-23 18:49:46,802 INFO:env: Trainer performed a synchronous update at t=12015; buffer_size=226
+2025-09-23 18:50:16,178 INFO:env: Trainer performed a synchronous update at t=12095; buffer_size=226
+t= 12100 coop_rate=0.0095 avg_reward=1.0285 global_avg=1.2845 buffer_size=227 trainer_active=False
+2025-09-23 18:50:43,850 INFO:env: Trainer performed a synchronous update at t=12171; buffer_size=226
+t= 12200 coop_rate=0.0065 avg_reward=1.0195 global_avg=1.2823 buffer_size=237 trainer_active=False
+2025-09-23 18:51:12,243 INFO:env: Trainer performed a synchronous update at t=12245; buffer_size=226
+t= 12300 coop_rate=0.0050 avg_reward=1.0150 global_avg=1.2801 buffer_size=246 trainer_active=False
+2025-09-23 18:51:43,403 INFO:env: Trainer performed a synchronous update at t=12336; buffer_size=226
+2025-09-23 18:52:09,116 INFO:env: Trainer performed a synchronous update at t=12396; buffer_size=226
+t= 12400 coop_rate=0.0050 avg_reward=1.0150 global_avg=1.2780 buffer_size=227 trainer_active=False
+2025-09-23 18:52:40,736 INFO:env: Trainer performed a synchronous update at t=12487; buffer_size=226
+t= 12500 coop_rate=0.0045 avg_reward=1.0135 global_avg=1.2759 buffer_size=233 trainer_active=False
+2025-09-23 18:53:08,152 INFO:env: Trainer performed a synchronous update at t=12567; buffer_size=226
+t= 12600 coop_rate=0.0060 avg_reward=1.0180 global_avg=1.2738 buffer_size=237 trainer_active=False
+2025-09-23 18:53:34,157 INFO:env: Trainer performed a synchronous update at t=12635; buffer_size=227
+t= 12700 coop_rate=0.0065 avg_reward=1.0195 global_avg=1.2718 buffer_size=244 trainer_active=False
+2025-09-23 18:54:06,313 INFO:env: Trainer performed a synchronous update at t=12732; buffer_size=227
+2025-09-23 18:54:31,846 INFO:env: Trainer performed a synchronous update at t=12795; buffer_size=226
+t= 12800 coop_rate=0.0015 avg_reward=1.0045 global_avg=1.2697 buffer_size=226 trainer_active=False
+2025-09-23 18:55:01,289 INFO:env: Trainer performed a synchronous update at t=12880; buffer_size=227
+t= 12900 coop_rate=0.0070 avg_reward=1.0210 global_avg=1.2678 buffer_size=237 trainer_active=False
+2025-09-23 18:55:32,704 INFO:env: Trainer performed a synchronous update at t=12963; buffer_size=226
+t= 13000 coop_rate=0.0050 avg_reward=1.0150 global_avg=1.2659 buffer_size=239 trainer_active=False
+2025-09-23 18:55:59,866 INFO:env: Trainer performed a synchronous update at t=13029; buffer_size=226
+t= 13100 coop_rate=0.0060 avg_reward=1.0180 global_avg=1.2640 buffer_size=246 trainer_active=False
+2025-09-23 18:56:32,825 INFO:env: Trainer performed a synchronous update at t=13131; buffer_size=227
+2025-09-23 18:56:59,105 INFO:env: Trainer performed a synchronous update at t=13196; buffer_size=226
+t= 13200 coop_rate=0.0055 avg_reward=1.0165 global_avg=1.2621 buffer_size=228 trainer_active=False
+2025-09-23 18:57:26,903 INFO:env: Trainer performed a synchronous update at t=13274; buffer_size=226
+t= 13300 coop_rate=0.0090 avg_reward=1.0260 global_avg=1.2603 buffer_size=234 trainer_active=False
+2025-09-23 18:57:56,200 INFO:env: Trainer performed a synchronous update at t=13352; buffer_size=226
+t= 13400 coop_rate=0.0045 avg_reward=1.0135 global_avg=1.2585 buffer_size=243 trainer_active=False
+2025-09-23 18:58:24,736 INFO:env: Trainer performed a synchronous update at t=13430; buffer_size=226
+t= 13500 coop_rate=0.0095 avg_reward=1.0285 global_avg=1.2568 buffer_size=253 trainer_active=False
+2025-09-23 18:58:52,121 INFO:env: Trainer performed a synchronous update at t=13504; buffer_size=226
+2025-09-23 18:59:18,323 INFO:env: Trainer performed a synchronous update at t=13580; buffer_size=226
+t= 13600 coop_rate=0.0035 avg_reward=1.0105 global_avg=1.2550 buffer_size=232 trainer_active=False
+2025-09-23 18:59:47,478 INFO:env: Trainer performed a synchronous update at t=13667; buffer_size=226
+t= 13700 coop_rate=0.0060 avg_reward=1.0180 global_avg=1.2532 buffer_size=242 trainer_active=False
+2025-09-23 19:00:14,950 INFO:env: Trainer performed a synchronous update at t=13741; buffer_size=226
+t= 13800 coop_rate=0.0035 avg_reward=1.0105 global_avg=1.2515 buffer_size=248 trainer_active=False
+2025-09-23 19:00:40,978 INFO:env: Trainer performed a synchronous update at t=13807; buffer_size=226
+t= 13900 coop_rate=0.0040 avg_reward=1.0120 global_avg=1.2497 buffer_size=255 trainer_active=False
+2025-09-23 19:01:12,158 INFO:env: Trainer performed a synchronous update at t=13902; buffer_size=226
+2025-09-23 19:01:40,696 INFO:env: Trainer performed a synchronous update at t=13983; buffer_size=227
+t= 14000 coop_rate=0.0050 avg_reward=1.0150 global_avg=1.2481 buffer_size=232 trainer_active=False
+2025-09-23 19:02:08,630 INFO:env: Trainer performed a synchronous update at t=14054; buffer_size=226
+t= 14100 coop_rate=0.0040 avg_reward=1.0120 global_avg=1.2464 buffer_size=245 trainer_active=False
+2025-09-23 19:02:39,185 INFO:env: Trainer performed a synchronous update at t=14137; buffer_size=226
+t= 14200 coop_rate=0.0045 avg_reward=1.0135 global_avg=1.2448 buffer_size=249 trainer_active=False
+2025-09-23 19:03:05,675 INFO:env: Trainer performed a synchronous update at t=14214; buffer_size=226
+t= 14300 coop_rate=0.0040 avg_reward=1.0120 global_avg=1.2431 buffer_size=255 trainer_active=False
+2025-09-23 19:03:35,712 INFO:env: Trainer performed a synchronous update at t=14301; buffer_size=226
+2025-09-23 19:04:01,618 INFO:env: Trainer performed a synchronous update at t=14367; buffer_size=226
+t= 14400 coop_rate=0.0060 avg_reward=1.0180 global_avg=1.2416 buffer_size=235 trainer_active=False
+2025-09-23 19:04:31,140 INFO:env: Trainer performed a synchronous update at t=14454; buffer_size=227
+t= 14500 coop_rate=0.0045 avg_reward=1.0135 global_avg=1.2400 buffer_size=245 trainer_active=False
+2025-09-23 19:04:59,492 INFO:env: Trainer performed a synchronous update at t=14535; buffer_size=226
+t= 14600 coop_rate=0.0030 avg_reward=1.0090 global_avg=1.2384 buffer_size=252 trainer_active=False
+2025-09-23 19:05:28,290 INFO:env: Trainer performed a synchronous update at t=14616; buffer_size=227
+2025-09-23 19:05:57,128 INFO:env: Trainer performed a synchronous update at t=14692; buffer_size=226
+t= 14700 coop_rate=0.0035 avg_reward=1.0105 global_avg=1.2369 buffer_size=230 trainer_active=False
+2025-09-23 19:06:23,344 INFO:env: Trainer performed a synchronous update at t=14757; buffer_size=226
+t= 14800 coop_rate=0.0075 avg_reward=1.0225 global_avg=1.2354 buffer_size=238 trainer_active=False
+2025-09-23 19:06:55,655 INFO:env: Trainer performed a synchronous update at t=14854; buffer_size=226
+t= 14900 coop_rate=0.0035 avg_reward=1.0105 global_avg=1.2339 buffer_size=246 trainer_active=False
+2025-09-23 19:07:22,638 INFO:env: Trainer performed a synchronous update at t=14933; buffer_size=226
+t= 15000 coop_rate=0.0040 avg_reward=1.0120 global_avg=1.2324 buffer_size=252 trainer_active=False
+2025-09-23 19:07:49,039 INFO:env: Trainer performed a synchronous update at t=15004; buffer_size=226
+2025-09-23 19:08:18,986 INFO:env: Trainer performed a synchronous update at t=15090; buffer_size=227
+t= 15100 coop_rate=0.0030 avg_reward=1.0090 global_avg=1.2309 buffer_size=231 trainer_active=False
+2025-09-23 19:08:43,614 INFO:env: Trainer performed a synchronous update at t=15149; buffer_size=226
+t= 15200 coop_rate=0.0020 avg_reward=1.0060 global_avg=1.2295 buffer_size=239 trainer_active=False
+2025-09-23 19:09:14,030 INFO:env: Trainer performed a synchronous update at t=15246; buffer_size=227
+t= 15300 coop_rate=0.0055 avg_reward=1.0165 global_avg=1.2281 buffer_size=252 trainer_active=False
+2025-09-23 19:09:42,180 INFO:env: Trainer performed a synchronous update at t=15319; buffer_size=226
+2025-09-23 19:10:09,677 INFO:env: Trainer performed a synchronous update at t=15391; buffer_size=226
+t= 15400 coop_rate=0.0055 avg_reward=1.0165 global_avg=1.2267 buffer_size=233 trainer_active=False
+2025-09-23 19:10:40,922 INFO:env: Trainer performed a synchronous update at t=15482; buffer_size=226
+t= 15500 coop_rate=0.0010 avg_reward=1.0030 global_avg=1.2253 buffer_size=233 trainer_active=False
+2025-09-23 19:11:08,151 INFO:env: Trainer performed a synchronous update at t=15553; buffer_size=227
+t= 15600 coop_rate=0.0035 avg_reward=1.0105 global_avg=1.2239 buffer_size=242 trainer_active=False
+2025-09-23 19:11:37,406 INFO:env: Trainer performed a synchronous update at t=15639; buffer_size=226
+t= 15700 coop_rate=0.0050 avg_reward=1.0150 global_avg=1.2225 buffer_size=247 trainer_active=False
+2025-09-23 19:12:06,552 INFO:env: Trainer performed a synchronous update at t=15717; buffer_size=226
+2025-09-23 19:12:34,160 INFO:env: Trainer performed a synchronous update at t=15788; buffer_size=226
+t= 15800 coop_rate=0.0045 avg_reward=1.0135 global_avg=1.2212 buffer_size=229 trainer_active=False
+2025-09-23 19:13:03,324 INFO:env: Trainer performed a synchronous update at t=15873; buffer_size=226
+t= 15900 coop_rate=0.0040 avg_reward=1.0120 global_avg=1.2199 buffer_size=236 trainer_active=False
+2025-09-23 19:13:32,984 INFO:env: Trainer performed a synchronous update at t=15954; buffer_size=226
+t= 16000 coop_rate=0.0030 avg_reward=1.0090 global_avg=1.2186 buffer_size=239 trainer_active=False
+2025-09-23 19:14:01,870 INFO:env: Trainer performed a synchronous update at t=16034; buffer_size=226
+t= 16100 coop_rate=0.0050 avg_reward=1.0150 global_avg=1.2173 buffer_size=248 trainer_active=False
+2025-09-23 19:14:32,731 INFO:env: Trainer performed a synchronous update at t=16121; buffer_size=226
+2025-09-23 19:14:57,647 INFO:env: Trainer performed a synchronous update at t=16185; buffer_size=226
+t= 16200 coop_rate=0.0030 avg_reward=1.0090 global_avg=1.2160 buffer_size=230 trainer_active=False
+2025-09-23 19:15:27,932 INFO:env: Trainer performed a synchronous update at t=16281; buffer_size=228
+t= 16300 coop_rate=0.0040 avg_reward=1.0120 global_avg=1.2148 buffer_size=242 trainer_active=False
+2025-09-23 19:15:53,770 INFO:env: Trainer performed a synchronous update at t=16347; buffer_size=227
+t= 16400 coop_rate=0.0035 avg_reward=1.0105 global_avg=1.2135 buffer_size=245 trainer_active=False
+2025-09-23 19:16:21,224 INFO:env: Trainer performed a synchronous update at t=16420; buffer_size=226
+t= 16500 coop_rate=0.0005 avg_reward=1.0015 global_avg=1.2123 buffer_size=256 trainer_active=False
+2025-09-23 19:16:54,053 INFO:env: Trainer performed a synchronous update at t=16500; buffer_size=226
+2025-09-23 19:17:22,884 INFO:env: Trainer performed a synchronous update at t=16578; buffer_size=227
+t= 16600 coop_rate=0.0010 avg_reward=1.0030 global_avg=1.2110 buffer_size=235 trainer_active=False
+2025-09-23 19:17:54,491 INFO:env: Trainer performed a synchronous update at t=16669; buffer_size=226
+t= 16700 coop_rate=0.0045 avg_reward=1.0135 global_avg=1.2098 buffer_size=243 trainer_active=False
+2025-09-23 19:18:22,854 INFO:env: Trainer performed a synchronous update at t=16741; buffer_size=226
+t= 16800 coop_rate=0.0035 avg_reward=1.0105 global_avg=1.2086 buffer_size=248 trainer_active=False
+2025-09-23 19:18:50,515 INFO:env: Trainer performed a synchronous update at t=16814; buffer_size=226
+2025-09-23 19:19:21,492 INFO:env: Trainer performed a synchronous update at t=16898; buffer_size=226
+t= 16900 coop_rate=0.0025 avg_reward=1.0075 global_avg=1.2074 buffer_size=228 trainer_active=False
+2025-09-23 19:19:50,006 INFO:env: Trainer performed a synchronous update at t=16970; buffer_size=226
+t= 17000 coop_rate=0.0030 avg_reward=1.0090 global_avg=1.2063 buffer_size=234 trainer_active=False
+2025-09-23 19:20:19,840 INFO:env: Trainer performed a synchronous update at t=17051; buffer_size=226
+t= 17100 coop_rate=0.0010 avg_reward=1.0030 global_avg=1.2051 buffer_size=245 trainer_active=False
+2025-09-23 19:20:48,871 INFO:env: Trainer performed a synchronous update at t=17121; buffer_size=226
+t= 17200 coop_rate=0.0015 avg_reward=1.0045 global_avg=1.2039 buffer_size=253 trainer_active=False
+2025-09-23 19:21:20,243 INFO:env: Trainer performed a synchronous update at t=17207; buffer_size=226
+2025-09-23 19:21:54,496 INFO:env: Trainer performed a synchronous update at t=17296; buffer_size=226
+t= 17300 coop_rate=0.0015 avg_reward=1.0045 global_avg=1.2028 buffer_size=228 trainer_active=False
+2025-09-23 19:22:24,003 INFO:env: Trainer performed a synchronous update at t=17367; buffer_size=226
+t= 17400 coop_rate=0.0035 avg_reward=1.0105 global_avg=1.2017 buffer_size=239 trainer_active=False
+2025-09-23 19:22:52,294 INFO:env: Trainer performed a synchronous update at t=17443; buffer_size=226
+t= 17500 coop_rate=0.0040 avg_reward=1.0120 global_avg=1.2006 buffer_size=247 trainer_active=False
+2025-09-23 19:23:20,957 INFO:env: Trainer performed a synchronous update at t=17526; buffer_size=226
+2025-09-23 19:23:49,771 INFO:env: Trainer performed a synchronous update at t=17599; buffer_size=227
+t= 17600 coop_rate=0.0055 avg_reward=1.0165 global_avg=1.1995 buffer_size=228 trainer_active=False
+2025-09-23 19:24:18,970 INFO:env: Trainer performed a synchronous update at t=17683; buffer_size=226
+t= 17700 coop_rate=0.0025 avg_reward=1.0075 global_avg=1.1984 buffer_size=236 trainer_active=False
+2025-09-23 19:24:47,612 INFO:env: Trainer performed a synchronous update at t=17758; buffer_size=226
+t= 17800 coop_rate=0.0030 avg_reward=1.0090 global_avg=1.1974 buffer_size=245 trainer_active=False
+2025-09-23 19:25:14,856 INFO:env: Trainer performed a synchronous update at t=17834; buffer_size=226
+t= 17900 coop_rate=0.0015 avg_reward=1.0045 global_avg=1.1963 buffer_size=251 trainer_active=False
+2025-09-23 19:25:43,858 INFO:env: Trainer performed a synchronous update at t=17913; buffer_size=226
+2025-09-23 19:26:12,975 INFO:env: Trainer performed a synchronous update at t=17992; buffer_size=226
+t= 18000 coop_rate=0.0025 avg_reward=1.0075 global_avg=1.1952 buffer_size=231 trainer_active=False
+2025-09-23 19:26:41,382 INFO:env: Trainer performed a synchronous update at t=18062; buffer_size=227
+t= 18100 coop_rate=0.0020 avg_reward=1.0060 global_avg=1.1942 buffer_size=238 trainer_active=False
+2025-09-23 19:27:10,385 INFO:env: Trainer performed a synchronous update at t=18146; buffer_size=226
+t= 18200 coop_rate=0.0025 avg_reward=1.0075 global_avg=1.1932 buffer_size=244 trainer_active=False
+2025-09-23 19:27:39,006 INFO:env: Trainer performed a synchronous update at t=18227; buffer_size=226
+t= 18300 coop_rate=0.0035 avg_reward=1.0105 global_avg=1.1922 buffer_size=253 trainer_active=False
+2025-09-23 19:28:08,694 INFO:env: Trainer performed a synchronous update at t=18308; buffer_size=226
+2025-09-23 19:28:33,530 INFO:env: Trainer performed a synchronous update at t=18373; buffer_size=226
+t= 18400 coop_rate=0.0025 avg_reward=1.0075 global_avg=1.1912 buffer_size=232 trainer_active=False
+2025-09-23 19:29:04,268 INFO:env: Trainer performed a synchronous update at t=18465; buffer_size=226
+t= 18500 coop_rate=0.0020 avg_reward=1.0060 global_avg=1.1902 buffer_size=245 trainer_active=False
+2025-09-23 19:29:31,695 INFO:env: Trainer performed a synchronous update at t=18538; buffer_size=226
+t= 18600 coop_rate=0.0010 avg_reward=1.0030 global_avg=1.1892 buffer_size=250 trainer_active=False
+2025-09-23 19:30:00,510 INFO:env: Trainer performed a synchronous update at t=18616; buffer_size=226
+t= 18700 coop_rate=0.0025 avg_reward=1.0075 global_avg=1.1882 buffer_size=255 trainer_active=False
+2025-09-23 19:30:32,479 INFO:env: Trainer performed a synchronous update at t=18701; buffer_size=226
+2025-09-23 19:31:01,777 INFO:env: Trainer performed a synchronous update at t=18775; buffer_size=226
+t= 18800 coop_rate=0.0035 avg_reward=1.0105 global_avg=1.1873 buffer_size=235 trainer_active=False
+2025-09-23 19:31:32,517 INFO:env: Trainer performed a synchronous update at t=18855; buffer_size=226
+t= 18900 coop_rate=0.0010 avg_reward=1.0030 global_avg=1.1863 buffer_size=243 trainer_active=False
