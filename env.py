@@ -167,6 +167,8 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
 
     window_coop = 0
     window_rewards = 0.0
+    window_type_rewards = defaultdict(float)
+    window_type_counts = defaultdict(int)
     # cumulative / global statistics
     cumulative_rewards = 0.0
     cumulative_actions = 0
@@ -180,6 +182,13 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
         for (ai_idx, aj_idx, ai, aj, ri, rj) in interactions:
             window_coop += (ai == 1) + (aj == 1)
             window_rewards += (ri + rj)
+            # update per-type window stats
+            ai_type = env.agents[ai_idx].agent_type
+            aj_type = env.agents[aj_idx].agent_type
+            window_type_rewards[ai_type] += ri
+            window_type_counts[ai_type] += 1
+            window_type_rewards[aj_type] += rj
+            window_type_counts[aj_type] += 1
             # update global cumulative stats
             cumulative_rewards += (ri + rj)
             cumulative_actions += 2
@@ -196,6 +205,19 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
             buf_size = len(env.global_buffer.storage)
             trainer_active = getattr(env.trainer, '_last_update_count', 0) > 0
             logger.info(f"t={t:6d} coop_rate={coop_rate:.4f} avg_reward={avg_reward:.4f} global_avg={global_avg:.4f} buffer_size={buf_size} trainer_active={trainer_active}")
+
+            # compute per-agent-type average rewards (window)
+            try:
+                window_type_stats = []
+                for atype, total in window_type_rewards.items():
+                    cnt = window_type_counts.get(atype, 0)
+                    avg_t = total / cnt if cnt > 0 else 0.0
+                    window_type_stats.append(f"{atype}={avg_t:.4f}({cnt})")
+                window_type_stats_str = ", ".join(window_type_stats)
+                logger.info("Per-type averages (window): %s", window_type_stats_str)
+            except Exception:
+                logger.exception("Failed to compute per-type averages (window)")
+
             # compute per-agent-type average rewards (cumulative)
             try:
                 type_stats = []
@@ -204,12 +226,15 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
                     avg_t = total / cnt if cnt > 0 else 0.0
                     type_stats.append(f"{atype}={avg_t:.4f}({cnt})")
                 type_stats_str = ", ".join(type_stats)
-                logger.info("Per-type averages: %s", type_stats_str)
+                logger.info("Per-type averages (cumulative): %s", type_stats_str)
             except Exception:
-                logger.exception("Failed to compute per-type averages")
+                logger.exception("Failed to compute per-type averages (cumulative)")
+
             global_avg_history.append((t, global_avg))
             window_coop = 0
             window_rewards = 0.0
+            window_type_rewards.clear()
+            window_type_counts.clear()
 
         if len(env.global_buffer.storage) >= train_every:
             #logger.info(f"Trainer before update buffer_size={len(env.global_buffer.storage)}")
