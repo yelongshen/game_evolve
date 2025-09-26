@@ -1,23 +1,13 @@
 
+
+
+
 import random
 import csv
 import time
-import logging
-import datetime
 from collections import defaultdict
 import copy
 import torch
-
-# Configure logging to save all logs to a file with a timestamp and also print to console
-log_filename = f"simulation_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s:%(name)s: %(message)s",
-    handlers=[
-        logging.FileHandler(log_filename),
-        logging.StreamHandler()
-    ]
-)
 
 from buffer import GlobalReplayBuffer
 from trainer import Trainer
@@ -241,5 +231,7 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
 
     # stop trainer gracefully
     env.trainer.stop()
+
+
 
     return coop_history, avg_reward_history
