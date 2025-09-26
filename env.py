@@ -13,7 +13,7 @@ from buffer import GlobalReplayBuffer
 from trainer import Trainer
 from agent import Agent
 from models import PolicyTransformer
-from utils import PAYOFF
+from utils import get_payoff
 import logging
 from agents_simple import AlwaysDefectAgent, AlwaysCooperateAgent, RandomAgent, EyeForEyeAgent, AggressiveEyeForEyeAgent
 
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class PopulationEnv:
-    def __init__(self, N=50, history_len=4, device="cpu", lr=1e-2, p_death=0.001, id_dim=16, verbose=False, trainer_update_every=256, trainer_ckpt_dir=None):
+    def __init__(self, N=50, history_len=4, device="cpu", lr=1e-2, p_death=0.001, id_dim=16, verbose=False, trainer_update_every=256, trainer_ckpt_dir=None, payoff_type='co'):
         self.N = N
         self.p_death = p_death
         self.device = device
@@ -50,7 +50,8 @@ class PopulationEnv:
         self.type_counts = defaultdict(int)
 
         self.agents = [self.create_agents(i) for i in range(N)]
-        self.time = 0
+    self.time = 0
+    self.payoff = get_payoff(payoff_type)
 
     def create_agents(self, idx):
         if idx in [0, 1]:
@@ -119,7 +120,7 @@ class PopulationEnv:
             # actions conditioned on partner id (also obtain value estimates)
             ai, logpi, vi = self.agents[i].act(id_j_vec)
             aj, logpj, vj = self.agents[j].act(id_i_vec)
-            ri, rj = PAYOFF[(ai, aj)]
+            ri, rj = self.payoff[(ai, aj)]
 
             # let agents observe and update (store partner id and partner index too)
             self.agents[i].observe_and_store(other_agent_id=id_j_vec, a_self=ai, a_other=aj, r=ri, logp=logpi, value=vi)
@@ -154,12 +155,12 @@ class PopulationEnv:
         return results
 
 
-def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_csv=None, pairs_per_step=20, train_every=50, verbose=False, device="cpu"):
+def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_csv=None, pairs_per_step=20, train_every=50, verbose=False, device="cpu", payoff_type='co'):
     # configure logging when verbose to ensure Trainer.info messages are visible
     if verbose:
         logging.basicConfig(level=logging.INFO)
 
-    env = PopulationEnv(N=N, history_len=history_len, p_death=p_death, verbose=verbose, device=device)
+    env = PopulationEnv(N=N, history_len=history_len, p_death=p_death, verbose=verbose, device=device, payoff_type=payoff_type)
     coop_history = []
     avg_reward_history = []
     global_avg_history = []

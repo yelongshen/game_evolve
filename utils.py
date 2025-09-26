@@ -1,14 +1,37 @@
 import torch
 
+
 # --- PD payoff ---
 # actions: 1 == cooperate (C), 0 == defect (D)
-PAYOFF = {
+CO_PAYOFF = {
     (1, 1): (3.0, 3.0),
     (1, 0): (-2.0, 2.0),
     (0, 1): (2.0, -2.0),
     (0, 0): (-1.0, -1.0),
 }
 
+JAIL_PAYOFF = {
+    (1, 1): (1.0, 1.0),
+    (1, 0): (-1.0, 2.0),
+    (0, 1): (2.0, -1.0),
+    (0, 0): (0.0, 0.0),
+}
+
+ALT_PAYOFF = {
+    (1, 1): (4.0, 4.0),
+    (1, 0): (-1.0, 5.0),
+    (0, 1): (5.0, -1.0),
+    (0, 0): (0.0, 0.0),
+}
+
+PAYOFF_TYPES = {
+    'co': CO_PAYOFF,
+    'jail': JAIL_PAYOFF,
+    'alt': ALT_PAYOFF,
+}
+
+def get_payoff(payoff_type='co'):
+    return PAYOFF_TYPES.get(payoff_type, CO_PAYOFF)
 
 def action_to_bits(a, device):
     # None -> [0,0] (no action yet), 1 -> [0,1] cooperate, 0 -> [1,0] defect
