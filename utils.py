@@ -17,6 +17,13 @@ JAIL_PAYOFF = {
     (0, 0): (0.0, 0.0),
 }
 
+DEFECTION_PAYOFF = {
+    (1, 1): (1.0, 1.0),
+    (1, 0): (-3.0, 2.0),
+    (0, 1): (2.0, -3.0),
+    (0, 0): (0.0, 0.0),
+}
+
 ALT_PAYOFF = {
     (1, 1): (4.0, 4.0),
     (1, 0): (-1.0, 5.0),
@@ -27,6 +34,7 @@ ALT_PAYOFF = {
 PAYOFF_TYPES = {
     'co': CO_PAYOFF,
     'jail': JAIL_PAYOFF,
+    'defect': DEFECTION_PAYOFF,
     'alt': ALT_PAYOFF,
 }
 
