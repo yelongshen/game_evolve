@@ -12,7 +12,7 @@ from agent import Agent
 from models import PolicyTransformer
 from utils import PAYOFF
 
-from agents_simple import AlwaysDefectAgent, AlwaysCooperateAgent, RandomAgent, EyeForEyeAgent
+from agents_simple import AlwaysDefectAgent, AlwaysCooperateAgent, RandomAgent, EyeForEyeAgent, AggressiveEyeForEyeAgent
 logger = logging.getLogger(__name__)
 
 
@@ -65,6 +65,9 @@ class PopulationEnv:
             # create eye-for-eye player.
             agent = EyeForEyeAgent(id_=idx, history_len=self.history_len, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
             agent.agent_type = 'eye_for_eye'
+        elif idx in [5, 6]:
+            agent = AggressiveEyeForEyeAgent(id_=idx, history_len=self.history_len, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
+            agent.agent_type = 'aggressive_eye_for_eye'
         else:
             # create model-based player.
             agent = Agent(id_=idx, shared_model=copy.deepcopy(self.trainer.shared_model).to(self.device), history_len=self.history_len, device=self.device, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))

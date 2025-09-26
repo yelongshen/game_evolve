@@ -193,3 +193,56 @@ class EyeForEyeAgent:
         # append to overall recent history
         self.history.append((other_id_copy, a_self, a_other, float(r)))
         return None
+
+
+class AggressiveEyeForEyeAgent:
+    """An agent that always defects (plays 0) against any partner who has ever played 0 with it in history. Otherwise, mimics eye-for-eye."""
+    def __init__(self, id_, history_len=4, id_dim=16, agent_id=None, agent_id_generator=None):
+        self.id = id_
+        self.history_len = history_len
+        self.id_dim = id_dim
+        self.token_dim = id_dim + 10
+        self.death_age = int(history_len * (random.uniform(0.8, 0.95)))
+        self.agent_id = agent_id
+        self.history = deque(maxlen=history_len)
+
+    def act(self, partner_id):
+        logp = torch.tensor(0.0, dtype=torch.float32)
+        value = torch.tensor(0.0, dtype=torch.float32)
+        partner = partner_id
+        if not isinstance(partner_id, torch.Tensor):
+            try:
+                partner = torch.tensor(partner_id, dtype=torch.float32)
+            except Exception:
+                partner = partner_id
+
+        # Check if partner has ever played 0 with us
+        has_defected = False
+        for other_id_copy, _, last_a_other, _ in self.history:
+            try:
+                if isinstance(other_id_copy, torch.Tensor) and isinstance(partner, torch.Tensor):
+                    if other_id_copy.shape == partner.shape and torch.equal(other_id_copy, partner):
+                        if int(last_a_other) == 0:
+                            has_defected = True
+                            break
+                else:
+                    if other_id_copy == partner:
+                        if int(last_a_other) == 0:
+                            has_defected = True
+                            break
+            except Exception:
+                continue
+
+        if has_defected:
+            a = 0
+        else:
+            a = 1
+        return a, logp, value
+
+    def observe_and_store(self, other_agent_id, a_self, a_other, r, logp, value):
+        if isinstance(other_agent_id, torch.Tensor):
+            other_id_copy = other_agent_id.detach()
+        else:
+            other_id_copy = torch.tensor(other_agent_id, dtype=torch.float32)
+        self.history.append((other_id_copy, a_self, a_other, float(r)))
+        return None
