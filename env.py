@@ -31,7 +31,7 @@ class PopulationEnv:
 
         if verbose:
             logger.setLevel(logging.DEBUG)
-        logger.info(f"PopulationEnv init: N={N}, history_len={history_len}, p_death={p_death}, device={device}, id_dim={id_dim}")
+        logger.info(f"PopulationEnv init: N={N}, history_len={history_len}, p_death={p_death}, device={device}, id_dim={id_dim}, payoff_type={payoff_type}")
         # agent id generator: callable(idx) -> 1D array-like or torch tensor of shape (id_dim,)
         
         self.agent_id_generator = lambda idx: __import__('torch').randint(0, 2, (id_dim,), dtype=__import__('torch').float32)
