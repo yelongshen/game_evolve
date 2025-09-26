@@ -14,8 +14,9 @@ from trainer import Trainer
 from agent import Agent
 from models import PolicyTransformer
 from utils import PAYOFF
-
+import logging
 from agents_simple import AlwaysDefectAgent, AlwaysCooperateAgent, RandomAgent, EyeForEyeAgent, AggressiveEyeForEyeAgent
+
 logger = logging.getLogger(__name__)
 
 
