@@ -153,12 +153,12 @@ class PopulationEnv:
         return results
 
 
-def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_csv=None, pairs_per_step=20, train_every=50, verbose=False):
+def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_csv=None, pairs_per_step=20, train_every=50, verbose=False, device="cpu"):
     # configure logging when verbose to ensure Trainer.info messages are visible
     if verbose:
         logging.basicConfig(level=logging.INFO)
 
-    env = PopulationEnv(N=N, history_len=history_len, p_death=p_death, verbose=verbose)
+    env = PopulationEnv(N=N, history_len=history_len, p_death=p_death, verbose=verbose, device=device)
     coop_history = []
     avg_reward_history = []
     global_avg_history = []
