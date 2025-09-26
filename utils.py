@@ -1,3 +1,6 @@
+
+import random
+import copy
 import torch
 
 
@@ -31,6 +34,7 @@ ALT_PAYOFF = {
     (0, 0): (0.0, 0.0),
 }
 
+
 PAYOFF_TYPES = {
     'co': CO_PAYOFF,
     'jail': JAIL_PAYOFF,
@@ -38,7 +42,17 @@ PAYOFF_TYPES = {
     'alt': ALT_PAYOFF,
 }
 
+class RandomPayoff:
+    def __init__(self, payoff_tables):
+        self.payoff_tables = list(payoff_tables.values())
+    def __getitem__(self, key):
+        table = random.choice(self.payoff_tables)
+        return table[key]
+
+
 def get_payoff(payoff_type='co'):
+    if payoff_type == 'random':
+        return RandomPayoff(PAYOFF_TYPES)
     return PAYOFF_TYPES.get(payoff_type, CO_PAYOFF)
 
 def action_to_bits(a, device):
