@@ -37,7 +37,7 @@ class PopulationEnv:
         self.agent_id_generator = lambda idx: __import__('torch').randint(0, 2, (id_dim,), dtype=__import__('torch').float32)
         
         # create shared model
-        shared_model = PolicyTransformer(token_dim=id_dim + 10, d_model=64, num_layers=8, mode='qnet', max_len=history_len + 1).to(self.device)
+        shared_model = PolicyTransformer(token_dim=id_dim + 10, d_model=128, num_layers=8, mode='qnet', max_len=history_len + 1).to(self.device)
         self.shared_model = shared_model
         # create agents and give each a private deep-copied model so they keep their own weights
         # global replay buffer
