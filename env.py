@@ -192,7 +192,7 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
         interactions = env.step(k=pairs_per_step)
 
         # flatten interactions to accumulate stats
-    for (ai_idx, aj_idx, ai, aj, ri, rj) in interactions:
+        for (ai_idx, aj_idx, ai, aj, ri, rj) in interactions:
             # Record model agent cooperate ratio by age region
             for idx, action, agent_type in [(ai_idx, ai, env.agents[ai_idx].agent_type), (aj_idx, aj, env.agents[aj_idx].agent_type)]:
                 if agent_type == 'model':
@@ -229,7 +229,7 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
             for region in range(4):
                 coop = model_coop_count[region]
                 total = model_total_count[region]
-                ratio = coop / total if total > 0 else None
+                ratio = coop * 1.0 / total if total > 0 else None
                 coop_lines.append(f"region {region+1}: coop_ratio={ratio:.4f} (n={total})" if ratio is not None else f"region {region+1}: -")
             logger.info(f"Model agent cooperate ratio by age region at step {t}:\n" + "\n".join(coop_lines))
             # reset model agent coop counters
