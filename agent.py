@@ -7,7 +7,7 @@ from utils import action_to_bits, reward_to_6bits
  
 class Agent:
     def __init__(self, id_, shared_model, history_len=4, device="cpu", id_dim=32, agent_id=None,
-                 pair_history_len=None, exploration_eps=0.1):
+                 pair_history_len=None, exploration_eps=0.01):
         self.id = id_
         self.history_len = history_len
         self.device = device
