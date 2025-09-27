@@ -26,7 +26,8 @@ if __name__ == "__main__":
     device = sys.argv[1] if len(sys.argv) > 1 else "cpu"
     payoff_type = sys.argv[2] if len(sys.argv) > 2 else 'co'
     try:
-        run_sim(steps=200000, N=50, history_len=512, p_death=0.002, log_every=300, out_csv="sim_log_new.csv", pairs_per_step=10, train_every=10, verbose=verbose, device=device, payoff_type=payoff_type)
+        # make group smaller. N=20
+        run_sim(steps=200000, N=20, history_len=512, p_death=0.002, log_every=300, out_csv="sim_log_new.csv", pairs_per_step=10, train_every=10, verbose=verbose, device=device, payoff_type=payoff_type)
         print("done", time.time() - start)
     finally:
         # Ensure all logs are flushed and file handlers closed, even on exception
