@@ -162,16 +162,14 @@ class PopulationEnv:
         # dump local buffers of agent idx into global buffer
         agent = self.agents[idx]
         items = []
-        for his, a, logp, r, v in zip(agent.history, agent.local_actions, agent.local_logps, agent.local_rewards, agent.local_values):
+        for his, logp, v in zip(agent.history, agent.local_logps, agent.local_values):
             (other_id_copy, a_self, a_other, _r) = his
             item = {
                 'agent': other_id_copy,
                 'a_self': a_self,
                 'a_other': a_other,
                 'r': _r,
-                'action': a,
                 'logp': logp,
-                'reward': r,
                 'value': v
             }
             items.append(item)
@@ -179,10 +177,6 @@ class PopulationEnv:
 
         logger.debug(f"Dumped {len(items)} transitions from agent {idx} into global buffer (buffer_size={len(self.global_buffer.storage)})")
         # clear agent local buffers after dumping
-        agent.local_actions = []
-        agent.local_logps = []
-        agent.local_rewards = []
-        agent.local_values = []
         agent.history.clear()
 
     def step(self, k=1):
@@ -212,8 +206,8 @@ class PopulationEnv:
                 agent = self.agents[idx]
                 if len(agent.history) >= agent.death_age:
                     # dump local memory to global buffer
-                    if agent.agent_type == 'model':
-                        self.dump_agent_memory(idx)
+                    #if agent.agent_type == 'model':
+                    self.dump_agent_memory(idx)
                     old_id = agent.agent_id
                     new_agent = self.create_agents(idx, agent_type=agent.agent_type)
                     self.agents[idx] = new_agent

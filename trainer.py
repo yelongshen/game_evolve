@@ -106,18 +106,16 @@ class Trainer:
             pad_len = max_len - seq_len
             if pad_len > 0:
                 seq = F.pad(seq, (0, 0, 0, pad_len))
-
             
-
             if len(seq_items) > max_len:
                 seq_items_trunc = seq_items[-max_len:]
             else:
                 seq_items_trunc = seq_items
 
-            actions_seq = [int(it.get('action', it.get('a_self', 0))) for it in seq_items_trunc]
+            actions_seq = [int(it.get('a_self', 0)) for it in seq_items_trunc]
             old_logps_seq = [float(it.get('logp', 0.0)) for it in seq_items_trunc]
             values_seq = [float(it.get('value', it.get('v', 0.0))) for it in seq_items_trunc]
-            returns_seq = [float(it.get('reward', it.get('r', 0.0))) for it in seq_items_trunc]
+            returns_seq = [float(it.get('r', 0.0)) for it in seq_items_trunc]
 
             token_list.append(seq.unsqueeze(0))
             actions_seqs.append(actions_seq)

@@ -1,36 +1,16 @@
+
 from collections import deque, defaultdict
- 
 import torch
 import random
 from utils import action_to_bits, reward_to_6bits
+from agents_simple import BasicAgent
 
- 
-class Agent:
-    def __init__(self, id_, shared_model, history_len=4, device="cpu", id_dim=32, agent_id=None,
-                 pair_history_len=None, exploration_eps=0.01):
-        self.id = id_
-        self.history_len = history_len
+class Agent(BasicAgent):
+    def __init__(self, id_, shared_model, history_len=4, device="cpu", id_dim=32, agent_id=None, exploration_eps=0.01):
+        super().__init__(id_, history_len, id_dim, agent_id)
         self.device = device
-        self.id_dim = id_dim
-        self.token_dim = id_dim + 10  # 2 bits for a_self, 2 bits for a_other, 6 bits for reward
-
-        self.death_age = int(history_len * (random.uniform(0.8, 0.95)))
-        # shared model reference (no per-agent optimizer)
         self.shared_model = shared_model
-
-        self.agent_id = agent_id
-        self.agent_id_str = str(agent_id.int().tolist())
-        
-        self.history = deque(maxlen=history_len)
-
-        self.local_actions = []
-        self.local_rewards = []
-
-        self.local_logps = []
-        self.local_values = [] # values from the shared model
-        
         self.kv_cache = self.shared_model.build_cache(self.death_age)
-        # epsilon for simple exploration in qnet mode (epsilon-greedy)
         self.epsilon = float(exploration_eps)
 
     def act(self, partner_id):
@@ -77,19 +57,3 @@ class Agent:
             logp = logp_all[a]
             return a, logp, q_values[a]
 
-    def observe_and_store(self, other_agent_id, a_self, a_other, r, logp, value):
-        # store a CPU-copy of other_agent_id to avoid cross-device tensor issues
-        if isinstance(other_agent_id, torch.Tensor):
-            other_id_copy = other_agent_id.detach()
-        else:
-            other_id_copy = torch.tensor(other_agent_id, dtype=torch.float32)
-        # append to overall recent history
-        self.history.append((other_id_copy, a_self, a_other, float(r)))
-
-        # store local transition (keep CPU copy of state)
-        self.local_actions.append(int(a_self))
-        self.local_rewards.append(float(r))
-
-        self.local_logps.append(float(logp.detach().cpu().item()))
-        self.local_values.append(float(value.detach().cpu().item()))
-        return None

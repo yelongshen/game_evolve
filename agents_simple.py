@@ -2,7 +2,29 @@ import torch
 import random
 from collections import deque
 
-class AlwaysDefectAgent:
+class BasicAgent:
+    def __init__(self, id_, history_len=4, id_dim=16, agent_id=None):
+        self.id = id_
+        self.history_len = history_len
+        self.id_dim = id_dim
+        self.token_dim = id_dim + 10
+        self.death_age = int(history_len * (random.uniform(0.8, 0.95)))
+        self.agent_id = agent_id
+        self.history = deque(maxlen=history_len)
+        self.local_logps = []
+        self.local_values = []
+
+    def observe_and_store(self, other_agent_id, a_self, a_other, r, logp, value):
+        if isinstance(other_agent_id, torch.Tensor):
+            other_id_copy = other_agent_id.detach()
+        else:
+            other_id_copy = torch.tensor(other_agent_id, dtype=torch.float32)
+        self.history.append((other_id_copy, a_self, a_other, float(r)))
+        self.local_logps.append(float(logp.detach().cpu().item()))
+        self.local_values.append(float(value.detach().cpu().item()))
+        return None
+
+class AlwaysDefectAgent(BasicAgent):
     """A minimal agent that always plays action 0 (defect).
 
     Implements the small interface expected by PopulationEnv:
@@ -11,17 +33,7 @@ class AlwaysDefectAgent:
                  observe_and_store(other_agent_id, a_self, a_other, r, logp, value)
     """
     def __init__(self, id_, history_len=4, id_dim=16, agent_id=None):
-        
-        self.id = id_
-        self.history_len = history_len
-        self.id_dim = id_dim
-        self.token_dim = id_dim + 10  # 2 bits for a_self, 2 bits for a_other, 6 bits for reward
-
-        self.death_age = int(history_len * (random.uniform(0.8, 0.95)))
-
-        # agent identity
-        self.agent_id = agent_id
-        self.history = deque(maxlen=history_len)
+        super().__init__(id_, history_len, id_dim, agent_id)
 
     def act(self, partner_id):
         # always defect (0). Return a logp and value scalar tensors for compatibility.
@@ -32,19 +44,10 @@ class AlwaysDefectAgent:
         a = 0
         return a, logp, value
 
-    def observe_and_store(self, other_agent_id, a_self, a_other, r, logp, value):
-        # store a CPU-copy of other_agent_id to avoid cross-device tensor issues
-        if isinstance(other_agent_id, torch.Tensor):
-            other_id_copy = other_agent_id.detach()
-        else:
-            other_id_copy = torch.tensor(other_agent_id, dtype=torch.float32)
-        # append to overall recent history
-        self.history.append((other_id_copy, a_self, a_other, float(r)))
-
-        return None
+    # observe_and_store inherited from BasicAgent
 
 
-class AlwaysCooperateAgent:
+class AlwaysCooperateAgent(BasicAgent):
     """A minimal agent that always plays action 1 (cooperate).
 
     Implements the small interface expected by PopulationEnv:
@@ -53,17 +56,7 @@ class AlwaysCooperateAgent:
                  observe_and_store(other_agent_id, a_self, a_other, r, logp, value)
     """
     def __init__(self, id_, history_len=4, id_dim=16, agent_id=None):
-        
-        self.id = id_
-        self.history_len = history_len
-        self.id_dim = id_dim
-        self.token_dim = id_dim + 10  # 2 bits for a_self, 2 bits for a_other, 6 bits for reward
-
-        self.death_age = int(history_len * (random.uniform(0.8, 0.95)))
-
-        self.agent_id = agent_id
-        
-        self.history = deque(maxlen=history_len)
+        super().__init__(id_, history_len, id_dim, agent_id)
 
     def act(self, partner_id):
         # always cooperate (1). Return a logp and value scalar tensors for compatibility.
@@ -74,17 +67,9 @@ class AlwaysCooperateAgent:
         a = 1
         return a, logp, value
 
-    def observe_and_store(self, other_agent_id, a_self, a_other, r, logp, value):
-        # store a CPU-copy of other_agent_id to avoid cross-device tensor issues
-        if isinstance(other_agent_id, torch.Tensor):
-            other_id_copy = other_agent_id.detach()
-        else:
-            other_id_copy = torch.tensor(other_agent_id, dtype=torch.float32)
-        # append to overall recent history      
-        self.history.append((other_id_copy, a_self, a_other, float(r)))
-        return None
+    # observe_and_store inherited from BasicAgent
     
-class RandomAgent:
+class RandomAgent(BasicAgent):
     """A minimal agent that plays random actions.
 
     Implements the small interface expected by PopulationEnv:
@@ -93,17 +78,7 @@ class RandomAgent:
                  observe_and_store(other_agent_id, a_self, a_other, r, logp, value)
     """
     def __init__(self, id_, history_len=4, id_dim=16, agent_id=None, agent_id_generator=None):
-        
-        self.id = id_
-        self.history_len = history_len
-        self.id_dim = id_dim
-        self.token_dim = id_dim + 10  # 2 bits for a_self, 2 bits for a_other, 6 bits for reward
-
-        self.death_age = int(history_len * (random.uniform(0.8, 0.95)))
-
-        self.agent_id = agent_id
-        
-        self.history = deque(maxlen=history_len)
+        super().__init__(id_, history_len, id_dim, agent_id)
 
     def act(self, partner_id):
         # random action (0 or 1). Return a logp and value scalar tensors for compatibility.
@@ -114,17 +89,9 @@ class RandomAgent:
         a = random.choice([0, 1])
         return a, logp, value
 
-    def observe_and_store(self, other_agent_id, a_self, a_other, r, logp, value):
-        # store a CPU-copy of other_agent_id to avoid cross-device tensor issues
-        if isinstance(other_agent_id, torch.Tensor):
-            other_id_copy = other_agent_id.detach()
-        else:
-            other_id_copy = torch.tensor(other_agent_id, dtype=torch.float32)
-        # append to overall recent history
-        self.history.append((other_id_copy, a_self, a_other, float(r)))
-        return None
+    # observe_and_store inherited from BasicAgent
 
-class EyeForEyeAgent:
+class EyeForEyeAgent(BasicAgent):
     """A minimal agent that plays "eye for eye" strategy: start cooperating, then mimic opponent's last action.
     Implements the small interface expected by PopulationEnv:
       - attributes: agent_id, history (deque)
@@ -132,16 +99,7 @@ class EyeForEyeAgent:
                  observe_and_store(other_agent_id, a_self, a_other, r, logp, value)
     """
     def __init__(self, id_, history_len=4, id_dim=16, agent_id=None, agent_id_generator=None):
-        
-        self.id = id_
-        self.history_len = history_len
-        self.id_dim = id_dim
-        self.token_dim = id_dim + 10  # 2 bits for a_self, 2 bits for a_other, 6 bits for reward
-
-        self.death_age = int(history_len * (random.uniform(0.8, 0.95)))
-
-        self.agent_id = agent_id
-        self.history = deque(maxlen=history_len)
+        super().__init__(id_, history_len, id_dim, agent_id)
 
     def act(self, partner_id):
         # eye-for-eye action: cooperate first (1), then mimic opponent's last action.
@@ -184,27 +142,13 @@ class EyeForEyeAgent:
                 a = int(self.history[-1][2])
         return a, logp, value
 
-    def observe_and_store(self, other_agent_id, a_self, a_other, r, logp, value):
-        # store a CPU-copy of other_agent_id to avoid cross-device tensor issues
-        if isinstance(other_agent_id, torch.Tensor):
-            other_id_copy = other_agent_id.detach()
-        else:
-            other_id_copy = torch.tensor(other_agent_id, dtype=torch.float32)
-        # append to overall recent history
-        self.history.append((other_id_copy, a_self, a_other, float(r)))
-        return None
+    # observe_and_store inherited from BasicAgent
 
 
-class AggressiveEyeForEyeAgent:
+class AggressiveEyeForEyeAgent(BasicAgent):
     """An agent that always defects (plays 0) against any partner who has ever played 0 with it in history. Otherwise, mimics eye-for-eye."""
     def __init__(self, id_, history_len=4, id_dim=16, agent_id=None, agent_id_generator=None):
-        self.id = id_
-        self.history_len = history_len
-        self.id_dim = id_dim
-        self.token_dim = id_dim + 10
-        self.death_age = int(history_len * (random.uniform(0.8, 0.95)))
-        self.agent_id = agent_id
-        self.history = deque(maxlen=history_len)
+        super().__init__(id_, history_len, id_dim, agent_id)
 
     def act(self, partner_id):
         logp = torch.tensor(0.0, dtype=torch.float32)
@@ -239,10 +183,4 @@ class AggressiveEyeForEyeAgent:
             a = 1
         return a, logp, value
 
-    def observe_and_store(self, other_agent_id, a_self, a_other, r, logp, value):
-        if isinstance(other_agent_id, torch.Tensor):
-            other_id_copy = other_agent_id.detach()
-        else:
-            other_id_copy = torch.tensor(other_agent_id, dtype=torch.float32)
-        self.history.append((other_id_copy, a_self, a_other, float(r)))
-        return None
+    # observe_and_store inherited from BasicAgent
