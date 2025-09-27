@@ -156,6 +156,9 @@ class PopulationEnv:
 
 
 def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_csv=None, pairs_per_step=20, train_every=50, verbose=False, device="cpu", payoff_type='co'):
+    # For model agent cooperate ratio by age region
+    model_coop_count = [0 for _ in range(4)]
+    model_total_count = [0 for _ in range(4)]
     # Divide ages into four regions (quartiles)
     age_bins = [0, history_len // 4, history_len // 2, 3 * history_len // 4, history_len + 1]
     def get_age_region(age):
@@ -189,7 +192,16 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
         interactions = env.step(k=pairs_per_step)
 
         # flatten interactions to accumulate stats
-        for (ai_idx, aj_idx, ai, aj, ri, rj) in interactions:
+    for (ai_idx, aj_idx, ai, aj, ri, rj) in interactions:
+            # Record model agent cooperate ratio by age region
+            for idx, action, agent_type in [(ai_idx, ai, env.agents[ai_idx].agent_type), (aj_idx, aj, env.agents[aj_idx].agent_type)]:
+                if agent_type == 'model':
+                    agent = env.agents[idx]
+                    age = len(agent.history)
+                    region = get_age_region(age)
+                    if action == 1:
+                        model_coop_count[region] += 1
+                    model_total_count[region] += 1
             # Record agent type's reward by age region
             for idx, reward, agent_type in [(ai_idx, ri, env.agents[ai_idx].agent_type), (aj_idx, rj, env.agents[aj_idx].agent_type)]:
                 agent = env.agents[idx]
@@ -212,6 +224,17 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
 
         # Every 1000 steps, log average reward of each agent type for each age region
         if t % 1000 == 0:
+            # Log model agent cooperate ratio by age region
+            coop_lines = []
+            for region in range(4):
+                coop = model_coop_count[region]
+                total = model_total_count[region]
+                ratio = coop / total if total > 0 else None
+                coop_lines.append(f"region {region+1}: coop_ratio={ratio:.4f} (n={total})" if ratio is not None else f"region {region+1}: -")
+            logger.info(f"Model agent cooperate ratio by age region at step {t}:\n" + "\n".join(coop_lines))
+            # reset model agent coop counters
+            model_coop_count = [0 for _ in range(4)]
+            model_total_count = [0 for _ in range(4)]
             # Collect all agent types present in any region
             all_types = set()
             for region in range(4):
