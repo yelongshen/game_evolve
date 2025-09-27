@@ -156,6 +156,16 @@ class PopulationEnv:
 
 
 def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_csv=None, pairs_per_step=20, train_every=50, verbose=False, device="cpu", payoff_type='co'):
+    # Divide ages into four regions (quartiles)
+    age_bins = [0, history_len // 4, history_len // 2, 3 * history_len // 4, history_len + 1]
+    def get_age_region(age):
+        for i in range(4):
+            if age < age_bins[i+1]:
+                return i
+        return 3
+    # Structure: region_idx -> agent_type -> sum/count
+    region_type_reward_sum = defaultdict(lambda: defaultdict(float))
+    region_type_count = defaultdict(lambda: defaultdict(int))
     # configure logging when verbose to ensure Trainer.info messages are visible
     if verbose:
         logging.basicConfig(level=logging.INFO)
@@ -180,6 +190,13 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
 
         # flatten interactions to accumulate stats
         for (ai_idx, aj_idx, ai, aj, ri, rj) in interactions:
+            # Record agent type's reward by age region
+            for idx, reward, agent_type in [(ai_idx, ri, env.agents[ai_idx].agent_type), (aj_idx, rj, env.agents[aj_idx].agent_type)]:
+                agent = env.agents[idx]
+                age = len(agent.history)
+                region = get_age_region(age)
+                region_type_reward_sum[region][agent_type] += reward
+                region_type_count[region][agent_type] += 1
             window_coop += (ai == 1) + (aj == 1)
             window_rewards += (ri + rj)
             # update per-type window stats
@@ -193,7 +210,25 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
             cumulative_rewards += (ri + rj)
             cumulative_actions += 2
 
+        # Every 1000 steps, log average reward of each agent type for each age region
+        if t % 1000 == 0:
+            region_stats = []
+            for region in range(4):
+                region_range = f"[{age_bins[region]},{age_bins[region+1]})"
+                for agent_type in region_type_reward_sum[region].keys():
+                    count = region_type_count[region][agent_type]
+                    if count > 0:
+                        avg = region_type_reward_sum[region][agent_type] / count
+                        region_stats.append(f"{agent_type} age{region_range}: avg_reward={avg:.4f} (n={count})")
+            if region_stats:
+                logger.info(f"Agent average reward by age region at step {t}: " + ", ".join(region_stats))
+            # reset region stats after logging
+            region_type_reward_sum.clear()
+            region_type_count.clear()
+            
         if t % log_every == 0:
+        # Every 1000 steps, log model agent's average reward at each age
+        
             total_actions = log_every * pairs_per_step * 2
             coop_rate = window_coop / total_actions
             avg_reward = window_rewards / total_actions
