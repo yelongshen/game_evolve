@@ -1,6 +1,38 @@
+class Community:
+    def __init__(self, N, history_len, id_dim, agent_id_generator):
+        self.N = N
+        self.history_len = history_len
+        self.id_dim = id_dim
+        self.agent_id_generator = agent_id_generator
+        self.agent_types = []
+    def get_agent_types(self):
+        return self.agent_types
 
+class FairCommunity(Community):
+    def __init__(self, N, history_len, id_dim, agent_id_generator):
+        super().__init__(N, history_len, id_dim, agent_id_generator)
+        n_eye = int(0.10 * N)
+        n_agg = int(0.10 * N)
+        n_model = N - n_eye - n_agg
+        self.agent_types = (
+            ['eye_for_eye'] * n_eye +
+            ['aggressive_eye_for_eye'] * n_agg +
+            ['model'] * n_model
+        )
 
-
+class GreedyCommunity(Community):
+    def __init__(self, N, history_len, id_dim, agent_id_generator):
+        super().__init__(N, history_len, id_dim, agent_id_generator)
+        n_eye = int(0.05 * N)
+        n_agg = int(0.05 * N)
+        n_def = int(0.10 * N)
+        n_model = N - n_eye - n_agg - n_def
+        self.agent_types = (
+            ['eye_for_eye'] * n_eye +
+            ['aggressive_eye_for_eye'] * n_agg +
+            ['always_defect'] * n_def +
+            ['model'] * n_model
+        )
 
 import random
 import csv
@@ -21,7 +53,7 @@ logger = logging.getLogger(__name__)
 
 
 class PopulationEnv:
-    def __init__(self, N=50, history_len=4, device="cpu", lr=1e-2, p_death=0.001, id_dim=16, verbose=False, trainer_update_every=256, trainer_ckpt_dir=None, payoff_type='co'):
+    def __init__(self, N=50, history_len=4, device="cpu", lr=1e-2, p_death=0.001, id_dim=16, verbose=False, trainer_update_every=256, trainer_ckpt_dir=None, payoff_type='co', community_type='fair'):
         self.N = N
         self.p_death = p_death
         self.device = device
@@ -49,34 +81,36 @@ class PopulationEnv:
         self.type_rewards = defaultdict(float)
         self.type_counts = defaultdict(int)
 
-        self.agents = [self.create_agents(i) for i in range(N)]
+        # Setup community if specified
+        self.community_type = community_type
+        if community_type == 'fair':
+            community = FairCommunity(N, history_len, id_dim, self.agent_id_generator)
+            agent_types = community.get_agent_types()
+        elif community_type == 'greedy':
+            community = GreedyCommunity(N, history_len, id_dim, self.agent_id_generator)
+            agent_types = community.get_agent_types()
+        else:
+            agent_types = None
+
+        self.agents = [self.create_agents(i, agent_types[i] if agent_types else 'model') for i in range(N)]
         self.time = 0
         self.payoff = get_payoff(payoff_type)
 
-    def create_agents(self, idx):
-        if idx in [0]:
-            # create always defect player.
+    def create_agents(self, idx, agent_type=None):
+        atype = agent_type
+        if atype == 'always_defect':
             agent = AlwaysDefectAgent(id_=idx, history_len=self.history_len, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
-            agent.agent_type = 'always_defect'
-        elif idx in [1]:
-            # create always cooperate player.
+        elif atype == 'always_cooperate':
             agent = AlwaysCooperateAgent(id_=idx, history_len=self.history_len, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
-            agent.agent_type = 'always_cooperate'
-        elif idx in [2]:
-            # create random player.
+        elif atype == 'random':
             agent = RandomAgent(id_=idx, history_len=self.history_len, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
-            agent.agent_type = 'random'
-        elif idx in [3]:
-            # create eye-for-eye player.
+        elif atype == 'eye_for_eye':
             agent = EyeForEyeAgent(id_=idx, history_len=self.history_len, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
-            agent.agent_type = 'eye_for_eye'
-        elif idx in [4]:
+        elif atype == 'aggressive_eye_for_eye':
             agent = AggressiveEyeForEyeAgent(id_=idx, history_len=self.history_len, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
-            agent.agent_type = 'aggressive_eye_for_eye'
         else:
-            # create model-based player.
             agent = Agent(id_=idx, shared_model=copy.deepcopy(self.trainer.shared_model).to(self.device), history_len=self.history_len, device=self.device, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
-            agent.agent_type = 'model'
+        agent.agent_type = atype
         return agent
     
     def dump_agent_memory(self, idx):
@@ -136,7 +170,7 @@ class PopulationEnv:
                     if agent.agent_type == 'model':
                         self.dump_agent_memory(idx)
                     old_id = agent.agent_id
-                    new_agent = self.create_agents(idx)
+                    new_agent = self.create_agents(idx, agent_type=agent.agent_type)
                     self.agents[idx] = new_agent
                     if self.verbose:
                         logger.info(f"t={self.time} Agent {idx} died (age={len(agent.history)}) and was replaced (old_id={old_id}) using latest shared_model")
@@ -155,7 +189,7 @@ class PopulationEnv:
         return results
 
 
-def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_csv=None, pairs_per_step=20, train_every=50, verbose=False, device="cpu", payoff_type='co'):
+def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_csv=None, pairs_per_step=20, train_every=50, verbose=False, device="cpu", payoff_type='co', community_type='fair'):
     # For model agent cooperate ratio by age region
     model_coop_count = [0 for _ in range(4)]
     model_total_count = [0 for _ in range(4)]
@@ -173,7 +207,7 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
     if verbose:
         logging.basicConfig(level=logging.INFO)
 
-    env = PopulationEnv(N=N, history_len=history_len, p_death=p_death, verbose=verbose, device=device, payoff_type=payoff_type)
+    env = PopulationEnv(N=N, history_len=history_len, p_death=p_death, verbose=verbose, device=device, payoff_type=payoff_type, community_type=community_type)
     coop_history = []
     avg_reward_history = []
     global_avg_history = []
