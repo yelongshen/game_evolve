@@ -212,20 +212,29 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
 
         # Every 1000 steps, log average reward of each agent type for each age region
         if t % 1000 == 0:
-            region_stats = []
+            # Collect all agent types present in any region
+            all_types = set()
             for region in range(4):
-                region_range = f"[{age_bins[region]},{age_bins[region+1]})"
-                for agent_type in region_type_reward_sum[region].keys():
+                all_types.update(region_type_reward_sum[region].keys())
+            log_lines = []
+            
+            for agent_type in sorted(all_types):
+                avg_rewards = []
+                for region in range(4):
                     count = region_type_count[region][agent_type]
                     if count > 0:
                         avg = region_type_reward_sum[region][agent_type] / count
-                        region_stats.append(f"{agent_type} age{region_range}: avg_reward={avg:.4f} (n={count})")
-            if region_stats:
-                logger.info(f"Agent average reward by age region at step {t}: " + ", ".join(region_stats))
+                        avg_rewards.append(f"{avg:.4f}")
+                    else:
+                        avg_rewards.append("-")
+                log_lines.append(f"{agent_type}:\n  " + ", ".join(avg_rewards) + ".")
+            
+            if log_lines:
+                logger.info(f"Agent average reward by age region at step {t}:\n" + "\n".join(log_lines))
             # reset region stats after logging
             region_type_reward_sum.clear()
             region_type_count.clear()
-            
+
         if t % log_every == 0:
         # Every 1000 steps, log model agent's average reward at each age
         
