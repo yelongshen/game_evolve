@@ -34,6 +34,46 @@ class GreedyCommunity(Community):
             ['model'] * n_model
         )
 
+class PureCommunity(Community):
+    def __init__(self, N, history_len, id_dim, agent_id_generator):
+        super().__init__(N, history_len, id_dim, agent_id_generator)
+        n_model = N 
+        self.agent_types = (
+            ['model'] * n_model
+        )
+
+class KindCommunity(Community):
+    def __init__(self, N, history_len, id_dim, agent_id_generator):
+        super().__init__(N, history_len, id_dim, agent_id_generator)
+        n_coop = int(0.10 * N)
+        n_eve = int(0.05 * N)
+        n_agg = int(0.05 * N)
+        n_model = N - n_coop - n_eve - n_agg
+        self.agent_types = (
+            ['always_cooperate'] * n_coop +
+            ['eye_for_eye'] * n_eve +
+            ['aggressive_eye_for_eye'] * n_agg +
+            ['model'] * n_model
+        )
+
+class MixedCommunity(Community):
+    def __init__(self, N, history_len, id_dim, agent_id_generator):
+        super().__init__(N, history_len, id_dim, agent_id_generator)
+        n_coop = int(0.05 * N)
+        n_eye = int(0.10 * N)
+        n_agg = int(0.10 * N)
+        n_def = int(0.05 * N)
+        n_rand = int(0.05 * N)
+        n_model = N - n_coop - n_eye - n_agg - n_def - n_rand
+        self.agent_types = (
+            ['always_cooperate'] * n_coop +
+            ['eye_for_eye'] * n_eye +
+            ['aggressive_eye_for_eye'] * n_agg +
+            ['always_defect'] * n_def +
+            ['random'] * n_rand +
+            ['model'] * n_model
+        )
+
 import random
 import csv
 import time
@@ -85,12 +125,17 @@ class PopulationEnv:
         self.community_type = community_type
         if community_type == 'fair':
             community = FairCommunity(N, history_len, id_dim, self.agent_id_generator)
-            agent_types = community.get_agent_types()
         elif community_type == 'greedy':
             community = GreedyCommunity(N, history_len, id_dim, self.agent_id_generator)
-            agent_types = community.get_agent_types()
+        elif community_type == 'pure':
+            community = PureCommunity(N, history_len, id_dim, self.agent_id_generator)
+        elif community_type == 'kind':
+            community = KindCommunity(N, history_len, id_dim, self.agent_id_generator)
+        elif community_type == 'mixed':
+            community = MixedCommunity(N, history_len, id_dim, self.agent_id_generator)
         else:
-            agent_types = None
+            raise ValueError(f"Unknown community_type: {community_type}")
+        agent_types = community.get_agent_types()
 
         self.agents = [self.create_agents(i, agent_types[i] if agent_types else 'model') for i in range(N)]
         self.time = 0
