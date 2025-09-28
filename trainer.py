@@ -15,7 +15,7 @@ import torch.nn as nn
 logger = logging.getLogger(__name__)
 class Trainer:
     def __init__(self, model, buffer, device='cpu', ppo_epochs=1, clip_eps=0.8,
-                 value_coef=0.01, value_clip=0.2, lam=0.95, entropy_coef=0.01, gamma=0.95, lr=4e-4, min_buffer_size=32, normalize_returns=True, ckpt_dir=None, algorithm='ppo'):
+                 value_coef=0.01, value_clip=0.2, lam=0.95, entropy_coef=0.01, gamma=0.95, lr=8e-5, min_buffer_size=32, normalize_returns=True, ckpt_dir=None, algorithm='ppo'):
         # synchronous trainer that trains on a deep copy of the shared model
         self.shared_model = model
         self.buffer = buffer
@@ -114,7 +114,7 @@ class Trainer:
 
             actions_seq = [int(it.get('a_self', 0)) for it in seq_items_trunc]
             old_logps_seq = [float(it.get('logp', 0.0)) for it in seq_items_trunc]
-            values_seq = [float(it.get('value', it.get('v', 0.0))) for it in seq_items_trunc]
+            values_seq = [float(it.get('value', 0.0)) for it in seq_items_trunc]
             returns_seq = [float(it.get('r', 0.0)) for it in seq_items_trunc]
 
             token_list.append(seq.unsqueeze(0))
