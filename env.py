@@ -93,7 +93,7 @@ logger = logging.getLogger(__name__)
 
 
 class PopulationEnv:
-    def __init__(self, N=50, history_len=4, device="cpu", lr=1e-2, p_death=0.001, id_dim=16, verbose=False, trainer_update_every=256, trainer_ckpt_dir=None, payoff_type='co', community_type='fair'):
+    def __init__(self, N=50, history_len=4, device="cpu", lr=1e-2, p_death=0.001, id_dim=16, verbose=False, trainer_update_every=256, trainer_ckpt_dir=None, payoff_type='co', community_type='fair', algorithm='q'):
         self.N = N
         self.p_death = p_death
         self.device = device
@@ -103,19 +103,31 @@ class PopulationEnv:
 
         if verbose:
             logger.setLevel(logging.DEBUG)
-        logger.info(f"PopulationEnv init: N={N}, history_len={history_len}, p_death={p_death}, device={device}, id_dim={id_dim}, payoff_type={payoff_type}")
+        logger.info(f"PopulationEnv init: N={N}, history_len={history_len}, p_death={p_death}, device={device}, id_dim={id_dim}, payoff_type={payoff_type}, algorithm={algorithm}")
         # agent id generator: callable(idx) -> 1D array-like or torch tensor of shape (id_dim,)
-        
+
         self.agent_id_generator = lambda idx: __import__('torch').randint(0, 2, (id_dim,), dtype=__import__('torch').float32)
-        
+
+        # determine model and trainer algorithm modes based on requested algorithm
+        self.algorithm = algorithm
+        if algorithm == 'qnet-bayesain' or algorithm == 'q-bayes' or algorithm == 'q-bay':
+            model_mode = 'qnet-bay'
+            trainer_algo = 'q-bay'
+        elif algorithm == 'q':
+            model_mode = 'qnet'
+            trainer_algo = 'q'
+        else:
+            # default to qnet mode for unknown strings that imply q-learning; otherwise fall back to q
+            model_mode = 'qnet'
+            trainer_algo = 'q'
+
         # create shared model
-        shared_model = PolicyTransformer(token_dim=id_dim + 10, d_model=128, num_layers=8, mode='qnet', max_len=history_len + 1).to(self.device)
+        shared_model = PolicyTransformer(token_dim=id_dim + 10, d_model=128, num_layers=8, mode=model_mode, max_len=history_len + 1).to(self.device)
         self.shared_model = shared_model
-        # create agents and give each a private deep-copied model so they keep their own weights
         # global replay buffer
         self.global_buffer = GlobalReplayBuffer()
-        # trainer (async PPO) working on shared_model
-        self.trainer = Trainer(shared_model, self.global_buffer, device=self.device, algorithm='q', ckpt_dir=trainer_ckpt_dir)
+        # trainer (synchronous trainer) working on shared_model
+        self.trainer = Trainer(shared_model, self.global_buffer, device=self.device, algorithm=trainer_algo, ckpt_dir=trainer_ckpt_dir)
 
         # track per-agent-type reward statistics
         self.type_rewards = defaultdict(float)
@@ -228,7 +240,7 @@ class PopulationEnv:
         return results
 
 
-def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_csv=None, pairs_per_step=20, train_every=50, verbose=False, device="cpu", payoff_type='co', community_type='fair'):
+def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_csv=None, pairs_per_step=20, train_every=50, verbose=False, device="cpu", payoff_type='co', community_type='fair', algorithm='q'):
     # For model agent cooperate ratio by age region
     model_coop_count = [0 for _ in range(4)]
     model_total_count = [0 for _ in range(4)]
@@ -246,7 +258,7 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
     if verbose:
         logging.basicConfig(level=logging.INFO)
 
-    env = PopulationEnv(N=N, history_len=history_len, p_death=p_death, verbose=verbose, device=device, payoff_type=payoff_type, community_type=community_type)
+    env = PopulationEnv(N=N, history_len=history_len, p_death=p_death, verbose=verbose, device=device, payoff_type=payoff_type, community_type=community_type, algorithm=algorithm)
     coop_history = []
     avg_reward_history = []
     global_avg_history = []
