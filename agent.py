@@ -37,23 +37,38 @@ class Agent(BasicAgent):
             a = int(m.sample().item())
             logp = m.log_prob(torch.tensor(float(a), device=self.device))
             return a, logp, value
-        elif self.shared_model.mode =='qnet':
+        elif self.shared_model.mode == 'qnet':
             q_values = self.shared_model.forward_with_cache(self.kv_cache, partner_token.to(self.shared_model.pos_emb.device), position_idx=pos_idx)
-            #print(q_values)
-            #exit(0)
+            # add small noise for exploration in q-value space
             q_values = q_values + torch.randn_like(q_values) * 0.01
-
-            # q_values: tensor([... n_actions])
-            # simple epsilon-greedy exploration to avoid getting stuck deterministic
             if random.random() < self.epsilon:
                 a = int(random.randrange(0, q_values.size(-1)))
             else:
                 a = int(torch.argmax(q_values).item())
-            # compute logp as if from a softmax policy with temperature (for bookkeeping)
+            # Compute a surrogate log-prob for bookkeeping: softmax over q_values with temperature
             temp = 5.0
             logits = q_values / temp
             logp_all = logits - torch.logsumexp(logits, dim=-1, keepdim=True)
-            # logp_all may be a 1D tensor; pick chosen action
             logp = logp_all[a]
             return a, logp, q_values[a]
+        
+        elif self.shared_model.mode =='qnet-bay':
+            mu, logvar = self.shared_model.forward_with_cache(self.kv_cache, partner_token.to(self.shared_model.pos_emb.device), position_idx=pos_idx)
+            # add small noise for exploration in mu space
+            mu = mu + torch.randn_like(mu) * 0.01
+
+            # mu: tensor of shape (n_actions,)
+            if random.random() < self.epsilon:
+                a = int(random.randrange(0, mu.size(-1)))
+            else:
+                a = int(torch.argmax(mu).item())
+
+            # Compute a surrogate log-prob for bookkeeping: softmax over mu with temperature
+            temp = 5.0
+            logits = mu / temp
+            logp_all = logits - torch.logsumexp(logits, dim=-1, keepdim=True)
+            logp = logp_all[a]
+            # return chosen action, logp, and the predicted distribution params for the chosen action
+            # For qnet we return the predicted mean for the chosen action as the Q-value placeholder
+            return a, logp, (mu, logvar)
 

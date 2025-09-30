@@ -42,6 +42,8 @@ class Trainer:
 
         if self.shared_model.mode == 'qnet':
             assert self.algorithm == 'q'
+        if self.shared_model.mode == 'qnet-bay':
+            assert self.algorithm == 'q-bay'
 
         self.opt = optim.Adam(self.train_model.parameters(), lr=lr)
         # track how many samples we've processed from the buffer (approx)
@@ -293,6 +295,72 @@ class Trainer:
         self.opt.step()
         return True
 
+    def _run_q_bay(self, prepared):
+        batch_tokens = prepared['batch_tokens']
+        actions_seqs = prepared['actions_seqs']
+        old_logps_seqs = prepared['old_logps_seqs']
+        values_seqs = prepared['values_seqs']
+        returns_seqs = prepared['returns_seqs']
+        # train_model.forward now returns (mu, logvar) per action
+        mu_pred, logvar_pred = self.train_model.forward(batch_tokens)
+
+        
+        # compute next-state Q estimates using the shared_model (as a target source)
+        with torch.no_grad():
+            mu_target, logvar_target = self.shared_model.forward(batch_tokens)
+            # mu_target: (batch, seq_len, n_actions)
+            # For each time step, next-state value is max_a mu(next_state, a)
+            q_next_values = mu_target.max(dim=2).values
+
+        batch_size = batch_tokens.size(0)
+
+        total_loss = 0.0
+        count = 0
+        for i, actions in enumerate(actions_seqs):
+            returns = returns_seqs[i]
+            seq_len = len(actions)
+            if seq_len == 0:
+                continue
+            acts = torch.tensor(actions, dtype=torch.int64, device=self.device)
+            r = torch.tensor(returns, dtype=torch.float32, device=self.device)
+
+            # Build target y: y_t = r_t + gamma * max_a Q_{target}(s_{t+1}, a)
+            # q_next_values[i] has shape (seq_len,)
+            shifted_q = torch.zeros(seq_len, device=self.device)
+            if seq_len > 1:
+                shifted_q[:-1] = q_next_values[i, 1:seq_len]
+            # last next value stays zero
+            y = r + self.gamma * shifted_q
+
+            # gather predicted mu/logvar for actions taken
+            # mu_pred: (batch, seq_len, n_actions)
+            mu_sa = torch.gather(mu_pred[i, :seq_len], 1, acts.unsqueeze(-1)).squeeze(-1)
+            logvar_sa = torch.gather(logvar_pred[i, :seq_len], 1, acts.unsqueeze(-1)).squeeze(-1)
+
+            # Gaussian negative log-likelihood loss: 0.5 * (logvar + (y - mu)^2 / exp(logvar)) + const
+            # We'll use mean over seq steps
+            var = torch.exp(logvar_sa)
+            nll = 0.5 * (logvar_sa + ((y - mu_sa) ** 2) / (var + 1e-8))
+            loss_i = nll.mean()
+            total_loss = total_loss + loss_i
+            count += 1
+
+        if count == 0:
+            return False
+
+        loss = total_loss / float(count)
+
+        self.opt.zero_grad(set_to_none=True)
+        loss.backward()
+        # clip grads on train_model parameters
+        nn.utils.clip_grad_norm_(self.train_model.parameters(), 1.0)
+        self.opt.step()
+
+        self.last_update_stats = {'q_loss': float(loss.item())}
+
+        logger.info("Q update: q_loss=%.6f ", self.last_update_stats['q_loss'])
+        return True
+    
     def _run_q(self, prepared):
         batch_tokens = prepared['batch_tokens']
         actions_seqs = prepared['actions_seqs']
@@ -549,6 +617,8 @@ class Trainer:
 
         if self.algorithm == 'q':
             updated = self._run_q(prepared)
+        if self.algorithm == 'q-bay':
+            updated = self._run_q_bay(prepared)
         elif self.algorithm == 'gpo':
             prepared = self._prepare_batch_with_gae(prepared)
             updated = self._run_gpo(prepared)

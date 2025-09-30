@@ -169,9 +169,15 @@ class PolicyTransformer(nn.Module):
         if mode =='vnet':
             self.head = nn.Linear(d_model, 1)      # policy head (logit)
             self.value_head = nn.Linear(d_model, 1)  # value head
-        elif mode == 'qnet':
-            self.head = nn.Linear(d_model, 2)
-
+        elif mode == 'qnet' or mode == 'qnet-bay':
+            self.n_actions = 2
+            if mode == 'qnet':
+                self.head = nn.Linear(d_model, self.n_actions)
+            elif mode == 'qnet-bay':
+                # For qnet we predict a Gaussian per action: (mu, logvar) for each action.
+                # Current environment uses 2 discrete actions, so output dim = 2 actions * 2 (mu,logvar)
+                self.head = nn.Linear(d_model, self.n_actions * 2)
+            # initialize to small values
             nn.init.zeros_(self.head.weight)
             nn.init.zeros_(self.head.bias)
             
@@ -254,8 +260,17 @@ class PolicyTransformer(nn.Module):
             values = values.squeeze(-1).permute(1, 0)
             return probs, values
         elif self.mode =='qnet':
-            qvalues = self.head(out).contiguous()  # (batch, seq_len, 2)
+            qvalues = self.head(out).contiguous()
             return qvalues
+        elif self.mode == 'qnet-bay':
+            # head output shape: (batch, seq_len, n_actions*2)
+            q_out = self.head(out).contiguous()
+            batch, seq_len, _ = q_out.shape
+            q_out = q_out.view(batch, seq_len, self.n_actions, 2)
+            # split into mean and logvar
+            mu = q_out[..., 0]
+            logvar = q_out[..., 1]
+            return mu, logvar
         
     def forward_with_cache(self, memories, new_tokens, position_idx=0):
         """Compute outputs for `new_tokens` (seq_len_new, token_dim) using cached
@@ -318,3 +333,10 @@ class PolicyTransformer(nn.Module):
         elif self.mode =='qnet':
             q_values = self.head(rep)
             return q_values
+        elif self.mode == 'qnet-bay':
+            # rep: (d_model,) -> head -> (n_actions*2,)
+            q_out = self.head(rep)
+            q_out = q_out.view(self.n_actions, 2)
+            mu = q_out[:, 0]
+            logvar = q_out[:, 1]
+            return mu, logvar

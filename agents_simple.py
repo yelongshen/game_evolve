@@ -20,8 +20,33 @@ class BasicAgent:
         else:
             other_id_copy = torch.tensor(other_agent_id, dtype=torch.float32)
         self.history.append((other_id_copy, a_self, a_other, float(r)))
-        self.local_logps.append(float(logp.detach().cpu().item()))
-        self.local_values.append(float(value.detach().cpu().item()))
+        # logp expected to be a tensor
+        try:
+            self.local_logps.append(float(logp.detach().cpu().item()))
+        except Exception:
+            try:
+                self.local_logps.append(float(logp))
+            except Exception:
+                self.local_logps.append(0.0)
+
+        # value may be a tensor scalar, or a tuple (mu, logvar) for qnet
+        try:
+            if isinstance(value, tuple) and len(value) == 2:
+                mu, logvar = value
+                # extract predicted mean for the taken action
+                try:
+                    val_scalar = float(mu[a_self].detach().cpu().item())
+                except Exception:
+                    # mu may already be a Python sequence
+                    val_scalar = float(mu[a_self])
+            else:
+                val_scalar = float(value.detach().cpu().item())
+        except Exception:
+            try:
+                val_scalar = float(value)
+            except Exception:
+                val_scalar = 0.0
+        self.local_values.append(val_scalar)
         return None
 
 class AlwaysDefectAgent(BasicAgent):
