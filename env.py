@@ -116,10 +116,13 @@ class PopulationEnv:
         elif algorithm == 'q':
             model_mode = 'qnet'
             trainer_algo = 'q'
+        elif algorithm == 'q-agg':
+            model_mode = 'qnet'
+            trainer_algo = 'q-agg'
         else:
             # default to qnet mode for unknown strings that imply q-learning; otherwise fall back to q
-            model_mode = 'qnet'
-            trainer_algo = 'q'
+            model_mode = 'vnet'
+            trainer_algo = 'gpo'
 
         # create shared model
         shared_model = PolicyTransformer(token_dim=id_dim + 10, d_model=128, num_layers=8, mode=model_mode, max_len=history_len + 1).to(self.device)

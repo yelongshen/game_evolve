@@ -33,6 +33,8 @@ class Trainer:
         self.normalize_returns = normalize_returns
         self.entropy_coef = entropy_coef
         self.gamma = gamma
+        # temperature for soft-aggregation over horizons (q-agg)
+        self.tau_agg = 0.5
         self.min_buffer_size = min_buffer_size
         # algorithm: 'ppo' (default) or 'gpo' (vanilla policy-gradient / actor-critic)
         # GPO here is implemented as a simple on-policy actor-critic update that
@@ -41,7 +43,8 @@ class Trainer:
         self.algorithm = algorithm
 
         if self.shared_model.mode == 'qnet':
-            assert self.algorithm == 'q'
+            # allow either plain q update or the aggregation variant
+            assert self.algorithm in ('q', 'q-agg')
         if self.shared_model.mode == 'qnet-bay':
             assert self.algorithm == 'q-bay'
 
@@ -419,6 +422,90 @@ class Trainer:
 
         logger.info("Q update: q_loss=%.6f ", self.last_update_stats['q_loss'])
         return True
+    
+    def _run_q_agg(self, prepared):
+        """
+        Q-learning with soft aggregation over multi-step horizons per time-step.
+        For each time t in a sequence we build a set of n-step returns G^{(n)}_t
+        for n=1..N (until episode end or seq end) and aggregate with:
+            G_t(\tau) = \tau * log( (1/N) * sum_n exp(G^{(n)}_t / \tau) )
+        where tau = self.tau_agg. This reduces bias from picking a single horizon.
+        """
+        batch_tokens = prepared['batch_tokens']
+        actions_seqs = prepared['actions_seqs']
+        returns_seqs = prepared['returns_seqs']
+
+        # train_model.forward returns q-values of shape (batch, seq_len, n_actions)
+        qvalues = self.train_model.forward(batch_tokens)
+
+        # compute next-state Q estimates using the shared_model (as a target source)
+        with torch.no_grad():
+            q_target_buff = self.shared_model.forward(batch_tokens)
+            q_next_values = q_target_buff.max(dim=2).values
+
+        total_loss = 0.0
+        count = 0
+        tau = float(self.tau_agg)
+        for i, actions in enumerate(actions_seqs):
+            seq_len = len(actions)
+            if seq_len == 0:
+                continue
+            acts = torch.tensor(actions, dtype=torch.int64, device=self.device)
+            r = torch.tensor(returns_seqs[i], dtype=torch.float32, device=self.device)
+
+            # Precompute prefix sums of discounts for efficient n-step returns
+            # We'll compute all n-step returns G^{(n)}_t = sum_{k=0}^{n-1} gamma^k r_{t+k} + gamma^n q_{t+n}
+            # For simplicity (small seq_len) we'll compute straightforwardly O(T^2)
+            G_targets = torch.zeros((seq_len, seq_len), device=self.device)  # G_targets[t, n-1]
+            for t in range(seq_len):
+                # accumulate rewards
+                for n in range(1, seq_len - t + 1):
+                    # sum rewards r_t ... r_{t+n-1} discounted
+                    discounts = torch.tensor([self.gamma ** k for k in range(n)], device=self.device)
+                    rews = r[t:t+n]
+                    discounted_sum = (discounts * rews).sum()
+                    # bootstrap value at t+n (if within seq) else 0
+                    if t + n < seq_len:
+                        q_boot = q_next_values[i, t + n]
+                    else:
+                        q_boot = torch.tensor(0.0, device=self.device)
+                    Gn = discounted_sum + (self.gamma ** n) * q_boot
+                    G_targets[t, n-1] = Gn
+
+            # For each t, aggregate across horizons with softmax (log-sum-exp)
+            # shape: (seq_len,)
+            G_agg = torch.zeros(seq_len, device=self.device)
+            for t in range(seq_len):
+                Gn = G_targets[t, :seq_len - t]  # available horizons
+                if Gn.numel() == 1 or tau <= 1e-8:
+                    G_agg[t] = Gn[0]
+                else:
+                    # compute tau * (logsumexp(Gn / tau) - log(N))
+                    # where N = Gn.numel()
+                    N = float(Gn.numel())
+                    lse = torch.logsumexp(Gn / tau, dim=0)
+                    G_agg[t] = tau * (lse - torch.log(torch.tensor(N, device=self.device)))
+
+            # gather q(s,a) for actions taken
+            q_sa = torch.gather(qvalues[i, :seq_len], 1, acts.unsqueeze(-1)).squeeze(-1)
+
+            loss_i = F.smooth_l1_loss(q_sa, G_agg)
+            total_loss = total_loss + loss_i
+            count += 1
+
+        if count == 0:
+            return False
+
+        loss = total_loss / float(count)
+
+        self.opt.zero_grad(set_to_none=True)
+        loss.backward()
+        nn.utils.clip_grad_norm_(self.train_model.parameters(), 1.0)
+        self.opt.step()
+
+        self.last_update_stats = {'q_agg_loss': float(loss.item())}
+        logger.info("Q-agg update: q_agg_loss=%.6f ", self.last_update_stats['q_agg_loss'])
+        return True
       
       
     def _run_ppo(self, prepared):
@@ -617,6 +704,8 @@ class Trainer:
 
         if self.algorithm == 'q':
             updated = self._run_q(prepared)
+        elif self.algorithm == 'q-agg':
+            updated = self._run_q_agg(prepared)
         if self.algorithm == 'q-bay':
             updated = self._run_q_bay(prepared)
         elif self.algorithm == 'gpo':

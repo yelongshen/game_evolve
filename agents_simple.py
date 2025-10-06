@@ -13,7 +13,7 @@ class BasicAgent:
         self.history = deque(maxlen=history_len)
         self.local_logps = []
         self.local_values = []
-
+        
     def observe_and_store(self, other_agent_id, a_self, a_other, r, logp, value):
         if isinstance(other_agent_id, torch.Tensor):
             other_id_copy = other_agent_id.detach()
