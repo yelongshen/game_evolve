@@ -93,7 +93,7 @@ logger = logging.getLogger(__name__)
 
 
 class PopulationEnv:
-    def __init__(self, N=50, history_len=4, device="cpu", lr=1e-2, p_death=0.001, id_dim=16, verbose=False, trainer_update_every=256, trainer_ckpt_dir=None, payoff_type='co', community_type='fair', algorithm='q'):
+    def __init__(self, N=50, history_len=4, device="cpu", lr=1e-2, p_death=0.001, id_dim=64, verbose=False, trainer_update_every=256, trainer_ckpt_dir=None, payoff_type='co', community_type='fair', algorithm='q'):
         self.N = N
         self.p_death = p_death
         self.device = device
@@ -128,7 +128,7 @@ class PopulationEnv:
             trainer_algo = 'gpo'
 
         # create shared model
-        shared_model = PolicyTransformer(token_dim=id_dim + 10, d_model=128, num_layers=8, mode=model_mode, max_len=history_len + 1).to(self.device)
+        shared_model = PolicyTransformer(token_dim=id_dim + 10, d_model=256, num_layers=6, mode=model_mode, max_len=history_len + 1).to(self.device)
         self.shared_model = shared_model
         # global replay buffer
         self.global_buffer = GlobalReplayBuffer()

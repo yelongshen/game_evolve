@@ -147,7 +147,7 @@ class TransformerEncoderLayer(nn.Module):
 
 
 class PolicyTransformer(nn.Module):
-    def __init__(self, token_dim, d_model=64, nhead=4, num_layers=8, max_len=16, mode='vnet'):
+    def __init__(self, token_dim, d_model=64, nhead=8, num_layers=8, max_len=16, mode='vnet'):
         super().__init__()
         
         # input projection layer.

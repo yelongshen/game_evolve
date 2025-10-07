@@ -437,23 +437,25 @@ class Trainer:
         # forward to get q-values: (batch, seq_len, n_actions)
         qvalues = self.train_model.forward(batch_tokens)
 
-        total_loss = 0.0
-        count = 0
+        batch_size, max_len, n_actions = qvalues.shape
+        # Build target tensor with ignore_index for padding positions
+        ignore_idx = -100
+        targets = torch.full((batch_size, max_len), fill_value=ignore_idx, dtype=torch.long, device=self.device)
+        any_valid = False
         for i, actions in enumerate(actions_seqs):
             seq_len = len(actions)
             if seq_len == 0:
                 continue
-            # target action is the last recorded a_self in sequence
-            target = torch.tensor(actions[-1], dtype=torch.long, device=self.device)
-            q_last = qvalues[i, seq_len - 1]
-            loss_i = F.cross_entropy(q_last.unsqueeze(0), target.unsqueeze(0))
-            total_loss += loss_i
-            count += 1
+            any_valid = True
+            targets[i, :seq_len] = torch.tensor(actions, dtype=torch.long, device=self.device)
 
-        if count == 0:
+        if not any_valid:
             return False
 
-        loss = total_loss / float(count)
+        # Flatten predictions and targets and compute a single cross-entropy with ignore_index
+        q_flat = qvalues.view(batch_size * max_len, n_actions)
+        t_flat = targets.view(batch_size * max_len)
+        loss = F.cross_entropy(q_flat, t_flat, ignore_index=ignore_idx)
 
         self.opt.zero_grad(set_to_none=True)
         loss.backward()
