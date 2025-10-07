@@ -180,6 +180,12 @@ class PolicyTransformer(nn.Module):
             # initialize to small values
             nn.init.zeros_(self.head.weight)
             nn.init.zeros_(self.head.bias)
+            # Per-position learnable rescaling (FiLM-style) to adapt q-value ranges
+            # pos_scale and pos_bias have shape (max_len, n_actions) and are applied
+            # to the raw head outputs so the model can adjust output ranges by position.
+            max_len = self.pos_emb.size(0)
+            self.pos_scale = nn.Parameter(torch.ones(max_len, self.n_actions))
+            self.pos_bias = nn.Parameter(torch.zeros(max_len, self.n_actions))
             
 
     def build_cache(self, prealloc_len):
@@ -260,7 +266,15 @@ class PolicyTransformer(nn.Module):
             values = values.squeeze(-1).permute(1, 0)
             return probs, values
         elif self.mode =='qnet':
-            qvalues = self.head(out).contiguous()
+            qvalues = self.head(out).contiguous()  # (batch, seq_len, n_actions)
+            # Apply per-position scale and bias to adapt dynamic ranges across time
+            seq_len = qvalues.size(1)
+            max_pos = self.pos_scale.size(0)
+            # build per-position scale/bias for seq positions; clamp positions beyond max_pos to last
+            positions = torch.arange(seq_len, device=qvalues.device).clamp(max=max_pos - 1)
+            scale = self.pos_scale[positions].unsqueeze(0).to(qvalues.device)
+            bias = self.pos_bias[positions].unsqueeze(0).to(qvalues.device)
+            qvalues = qvalues * scale + bias
             return qvalues
         elif self.mode == 'qnet-bay':
             # head output shape: (batch, seq_len, n_actions*2)
@@ -270,6 +284,12 @@ class PolicyTransformer(nn.Module):
             # split into mean and logvar
             mu = q_out[..., 0]
             logvar = q_out[..., 1]
+            # apply per-position scaling to the predicted means
+            max_pos = self.pos_scale.size(0)
+            positions = torch.arange(seq_len, device=mu.device).clamp(max=max_pos - 1)
+            scale = self.pos_scale[positions].unsqueeze(0).to(mu.device)
+            bias = self.pos_bias[positions].unsqueeze(0).to(mu.device)
+            mu = mu * scale + bias
             return mu, logvar
         
     def forward_with_cache(self, memories, new_tokens, position_idx=0):
@@ -332,6 +352,13 @@ class PolicyTransformer(nn.Module):
             return prob, value
         elif self.mode =='qnet':
             q_values = self.head(rep)
+            # apply per-position scaling for this token's absolute position
+            pos = start_pos + new_x.size(0) - 1
+            max_pos = self.pos_scale.size(0)
+            pos = min(pos, max_pos - 1)
+            scale = self.pos_scale[pos].to(q_values.device)
+            bias = self.pos_bias[pos].to(q_values.device)
+            q_values = q_values * scale + bias
             return q_values
         elif self.mode == 'qnet-bay':
             # rep: (d_model,) -> head -> (n_actions*2,)
@@ -339,4 +366,10 @@ class PolicyTransformer(nn.Module):
             q_out = q_out.view(self.n_actions, 2)
             mu = q_out[:, 0]
             logvar = q_out[:, 1]
+            pos = start_pos + new_x.size(0) - 1
+            max_pos = self.pos_scale.size(0)
+            pos = min(pos, max_pos - 1)
+            scale = self.pos_scale[pos].to(mu.device)
+            bias = self.pos_bias[pos].to(mu.device)
+            mu = mu * scale + bias
             return mu, logvar
