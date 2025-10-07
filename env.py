@@ -185,8 +185,8 @@ class PopulationEnv:
             trainer_algo = getattr(self.trainer, 'algorithm', None)
         except Exception:
             trainer_algo = None
-        
-        if trainer_algo == 'q-bc' and agent.agent_type != 'eye_for_eye':
+
+        if trainer_algo == 'q-bc' and (agent.agent_type != 'eye_for_eye' and agent.agent_type != 'aggressive_eye_for_eye'):
             # clear agent local buffers and skip dumping
             agent.history.clear()
             return
