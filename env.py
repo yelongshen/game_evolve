@@ -158,7 +158,7 @@ class PopulationEnv:
         self.agents = [self.create_agents(i, agent_types[i] if agent_types else 'model') for i in range(N)]
         self.time = 0
         self.payoff = get_payoff(payoff_type)
-        self.sample_weight = 3 # how many times more likely to sample from buffer than not
+        self.sample_weight = 8 # how many times more likely to sample from buffer than not
 
     def create_agents(self, idx, agent_type=None):
         atype = agent_type
