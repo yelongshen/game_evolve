@@ -155,6 +155,7 @@ class PopulationEnv:
         self.agents = [self.create_agents(i, agent_types[i] if agent_types else 'model') for i in range(N)]
         self.time = 0
         self.payoff = get_payoff(payoff_type)
+        self.sample_weight = 3 # how many times more likely to sample from buffer than not
 
     def create_agents(self, idx, agent_type=None):
         atype = agent_type
@@ -188,7 +189,9 @@ class PopulationEnv:
                 'value': v
             }
             items.append(item)
-        self.global_buffer.add(items)
+        
+        for i in range(self.sample_weight):
+            self.global_buffer.add(items)
 
         logger.debug(f"Dumped {len(items)} transitions from agent {idx} into global buffer (buffer_size={len(self.global_buffer.storage)})")
         # clear agent local buffers after dumping
