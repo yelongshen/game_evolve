@@ -39,17 +39,23 @@ class Agent(BasicAgent):
             return a, logp, value
         elif self.shared_model.mode == 'qnet':
             q_values = self.shared_model.forward_with_cache(self.kv_cache, partner_token.to(self.shared_model.pos_emb.device), position_idx=pos_idx)
-            # add small noise for exploration in q-value space
-            q_values = q_values + torch.randn_like(q_values) * 0.01
-            if random.random() < self.epsilon:
-                a = int(random.randrange(0, q_values.size(-1)))
-            else:
-                a = int(torch.argmax(q_values).item())
-            # Compute a surrogate log-prob for bookkeeping: softmax over q_values with temperature
-            temp = 5.0
+            # Option: small noise for initial exploration (kept small); sampling from softmax
+            #q_values = q_values + torch.randn_like(q_values) * 0.01
+            temp = 0.8
             logits = q_values / temp
-            logp_all = logits - torch.logsumexp(logits, dim=-1, keepdim=True)
-            logp = logp_all[a]
+            probs = torch.softmax(logits, dim=-1)
+
+            # epsilon still allows uniform random exploration
+            if random.random() < self.epsilon:
+                a = int(random.randrange(0, probs.size(-1)))
+                # compute log-prob of uniform choice for bookkeeping
+                logp = torch.log(probs.new_tensor(1.0 / float(probs.size(-1))))
+            else:
+                m = torch.distributions.Categorical(probs=probs)
+                a_tensor = m.sample()
+                a = int(a_tensor.item())
+                logp = m.log_prob(a_tensor)
+
             return a, logp, q_values[a]
         
         elif self.shared_model.mode =='qnet-bay':
