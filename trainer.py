@@ -747,7 +747,7 @@ class Trainer:
             updated = self._run_q(prepared)
         elif self.algorithm == 'q-agg':
             updated = self._run_q_agg(prepared)
-        elif self.algorithm == 'q_bc':
+        elif self.algorithm == 'q-bc':
             updated = self._run_q_bc(prepared)
         if self.algorithm == 'q-bay':
             updated = self._run_q_bay(prepared)
