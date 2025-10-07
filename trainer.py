@@ -44,7 +44,7 @@ class Trainer:
 
         if self.shared_model.mode == 'qnet':
             # allow either plain q update or the aggregation variant
-            assert self.algorithm in ('q', 'q-agg')
+            assert self.algorithm in ('q', 'q-agg', 'q-bc')
         if self.shared_model.mode == 'qnet-bay':
             assert self.algorithm == 'q-bay'
 
@@ -54,7 +54,7 @@ class Trainer:
         # checkpoint storage (list of dicts) and optional on-disk directory
         self.checkpoints = []
         self.ckpt_dir = ckpt_dir
-        self.update_per_sync = 10  # how many updates per sync from shared model
+        self.update_per_sync = 4  # how many updates per sync from shared model
         self.steps_since_sync = 0
         if ckpt_dir is not None:
             os.makedirs(ckpt_dir, exist_ok=True)
@@ -424,6 +424,45 @@ class Trainer:
 
         logger.info("Q update: q_loss=%.6f ", self.last_update_stats['q_loss'])
         return True
+
+    def _run_q_bc(self, prepared):
+        """
+        Behavioral cloning training: use buffer sequences (which should contain
+        rollouts from EyeForEye agents when PopulationEnv is configured for q_bc)
+        and run a supervised cross-entropy loss on the final-step q-logits.
+        """
+        batch_tokens = prepared['batch_tokens']
+        actions_seqs = prepared['actions_seqs']
+
+        # forward to get q-values: (batch, seq_len, n_actions)
+        qvalues = self.train_model.forward(batch_tokens)
+
+        total_loss = 0.0
+        count = 0
+        for i, actions in enumerate(actions_seqs):
+            seq_len = len(actions)
+            if seq_len == 0:
+                continue
+            # target action is the last recorded a_self in sequence
+            target = torch.tensor(actions[-1], dtype=torch.long, device=self.device)
+            q_last = qvalues[i, seq_len - 1]
+            loss_i = F.cross_entropy(q_last.unsqueeze(0), target.unsqueeze(0))
+            total_loss += loss_i
+            count += 1
+
+        if count == 0:
+            return False
+
+        loss = total_loss / float(count)
+
+        self.opt.zero_grad(set_to_none=True)
+        loss.backward()
+        nn.utils.clip_grad_norm_(self.train_model.parameters(), 1.0)
+        self.opt.step()
+
+        self.last_update_stats = {'q_bc_loss': float(loss.item())}
+        logger.info("Q-BC update (q-bc): q_bc_loss=%.6f", self.last_update_stats['q_bc_loss'])
+        return True
     
     def _run_q_agg(self, prepared):
         """
@@ -708,6 +747,8 @@ class Trainer:
             updated = self._run_q(prepared)
         elif self.algorithm == 'q-agg':
             updated = self._run_q_agg(prepared)
+        elif self.algorithm == 'q_bc':
+            updated = self._run_q_bc(prepared)
         if self.algorithm == 'q-bay':
             updated = self._run_q_bay(prepared)
         elif self.algorithm == 'gpo':
@@ -727,6 +768,7 @@ class Trainer:
         if self.steps_since_sync >= self.update_per_sync:
             self._sync_to_shared_model()
             self.steps_since_sync = 0
+            logger.info("Synced to shared model after %d updates", self.update_per_sync)
 
         return True
     

@@ -119,6 +119,9 @@ class PopulationEnv:
         elif algorithm == 'q-agg':
             model_mode = 'qnet'
             trainer_algo = 'q-agg'
+        elif algorithm == 'q-bc':
+            model_mode = 'qnet'
+            trainer_algo = 'q-bc'
         else:
             # default to qnet mode for unknown strings that imply q-learning; otherwise fall back to q
             model_mode = 'vnet'
@@ -177,6 +180,17 @@ class PopulationEnv:
     def dump_agent_memory(self, idx):
         # dump local buffers of agent idx into global buffer
         agent = self.agents[idx]
+        # If trainer is running in q-bc mode, only store rollouts from eye_for_eye agents
+        try:
+            trainer_algo = getattr(self.trainer, 'algorithm', None)
+        except Exception:
+            trainer_algo = None
+        
+        if trainer_algo == 'q-bc' and agent.agent_type != 'eye_for_eye':
+            # clear agent local buffers and skip dumping
+            agent.history.clear()
+            return
+        
         items = []
         for his, logp, v in zip(agent.history, agent.local_logps, agent.local_values):
             (other_id_copy, a_self, a_other, _r) = his
@@ -416,7 +430,5 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
 
     # stop trainer gracefully
     env.trainer.stop()
-
-
 
     return coop_history, avg_reward_history

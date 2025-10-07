@@ -269,11 +269,9 @@ class PolicyTransformer(nn.Module):
             qvalues = self.head(out).contiguous()  # (batch, seq_len, n_actions)
             # Apply per-position scale and bias to adapt dynamic ranges across time
             seq_len = qvalues.size(1)
-            max_pos = self.pos_scale.size(0)
-            # build per-position scale/bias for seq positions; clamp positions beyond max_pos to last
-            positions = torch.arange(seq_len, device=qvalues.device).clamp(max=max_pos - 1)
-            scale = self.pos_scale[positions].unsqueeze(0).to(qvalues.device)
-            bias = self.pos_bias[positions].unsqueeze(0).to(qvalues.device)
+            # pos_scale/bias: (max_len, n_actions) -> take first seq_len positions
+            scale = self.pos_scale[:seq_len].unsqueeze(0).to(qvalues.device)
+            bias = self.pos_bias[:seq_len].unsqueeze(0).to(qvalues.device)
             qvalues = qvalues * scale + bias
             return qvalues
         elif self.mode == 'qnet-bay':
@@ -285,10 +283,8 @@ class PolicyTransformer(nn.Module):
             mu = q_out[..., 0]
             logvar = q_out[..., 1]
             # apply per-position scaling to the predicted means
-            max_pos = self.pos_scale.size(0)
-            positions = torch.arange(seq_len, device=mu.device).clamp(max=max_pos - 1)
-            scale = self.pos_scale[positions].unsqueeze(0).to(mu.device)
-            bias = self.pos_bias[positions].unsqueeze(0).to(mu.device)
+            scale = self.pos_scale[:seq_len].unsqueeze(0).to(mu.device)
+            bias = self.pos_bias[:seq_len].unsqueeze(0).to(mu.device)
             mu = mu * scale + bias
             return mu, logvar
         
