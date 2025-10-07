@@ -15,7 +15,7 @@ import torch.nn as nn
 logger = logging.getLogger(__name__)
 class Trainer:
     def __init__(self, model, buffer, device='cpu', ppo_epochs=1, clip_eps=0.8,
-                 value_coef=0.01, value_clip=0.2, lam=0.95, entropy_coef=0.01, gamma=0.95, lr=8e-5, min_buffer_size=32, normalize_returns=True, ckpt_dir=None, algorithm='ppo'):
+                 value_coef=0.01, value_clip=0.2, lam=0.95, entropy_coef=0.01, gamma=0.95, lr=3e-4, min_buffer_size=32, normalize_returns=True, ckpt_dir=None, algorithm='ppo'):
         # synchronous trainer that trains on a deep copy of the shared model
         self.shared_model = model
         self.buffer = buffer
@@ -54,6 +54,8 @@ class Trainer:
         # checkpoint storage (list of dicts) and optional on-disk directory
         self.checkpoints = []
         self.ckpt_dir = ckpt_dir
+        self.update_per_sync = 10  # how many updates per sync from shared model
+        self.steps_since_sync = 0
         if ckpt_dir is not None:
             os.makedirs(ckpt_dir, exist_ok=True)
 
@@ -720,7 +722,12 @@ class Trainer:
 
         # save checkpoint and sync weights back into the shared model
         ckpt_idx = self._save_checkpoint()
-        self._sync_to_shared_model()
+
+        self.steps_since_sync += 1
+        if self.steps_since_sync >= self.update_per_sync:
+            self._sync_to_shared_model()
+            self.steps_since_sync = 0
+
         return True
     
     def stop(self):
