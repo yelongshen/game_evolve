@@ -41,7 +41,7 @@ class TransformerEncoderLayer(nn.Module):
         k = self.k_proj(src)
         v = self.v_proj(src)
         
-        attn_out = self._multihead_attn(q, k, v, attn_mask=src_mask)
+        attn_out = self._multihead_attn(q, k, v, attn_mask=src_mask, q_pos_start=0, k_pos_start=0)
         src2 = src + self.dropout(attn_out)
         src2 = self.norm1(src2)
         ff = self.linear2(self.dropout(self.activation(self.linear1(src2))))
@@ -70,8 +70,7 @@ class TransformerEncoderLayer(nn.Module):
 
         k = past[0][0:position_idx + k_new.size(0)]
         v = past[1][0:position_idx + v_new.size(0)]
-
-        attn_out = self._multihead_attn(q, k, v)
+        attn_out = self._multihead_attn(q, k, v, q_pos_start=position_idx, k_pos_start=0)
         
         #print('attn_out', attn_out)
 
@@ -91,7 +90,7 @@ class TransformerEncoderLayer(nn.Module):
 
         return out
 
-    def _multihead_attn(self, q, k, v, attn_mask=None):
+    def _multihead_attn(self, q, k, v, attn_mask=None, q_pos_start=None, k_pos_start=None):
         """Lightweight multi-head attention using explicit q/k/v projections.
 
         q, k, v: (seq_len, batch, d_model)
@@ -120,7 +119,47 @@ class TransformerEncoderLayer(nn.Module):
         kh = kh.reshape(batch * self.nhead, k_len, self.head_dim)
         vh = vh.reshape(batch * self.nhead, k_len, self.head_dim)
 
+        # optionally apply RoPE (rotary) to q and k based on absolute positions
+        def rotate_every_two(x):
+            # x: (..., head_dim)
+            x1 = x[..., ::2]
+            x2 = x[..., 1::2]
+            # (-x2, x1) interleaved
+            x_rot = torch.stack((-x2, x1), dim=-1).reshape_as(x)
+            return x_rot
+
         # scaled dot-product
+        # qh, kh shape: (batch*nhead, seq_len, head_dim)
+        if q_pos_start is not None and k_pos_start is not None:
+            device = qh.device
+            head_dim = qh.size(-1)
+            # inv freq for half dims
+            inv_freq = 1.0 / (10000 ** (torch.arange(0, head_dim, 2, device=device).float() / float(head_dim)))
+            # q positions
+            q_len = qh.size(1)
+            q_pos = torch.arange(q_pos_start, q_pos_start + q_len, device=device).float()
+            q_cos = torch.cos(torch.einsum('i,j->ij', q_pos, inv_freq))
+            q_sin = torch.sin(torch.einsum('i,j->ij', q_pos, inv_freq))
+            q_cos = torch.repeat_interleave(q_cos, repeats=2, dim=-1)  # (q_len, head_dim)
+            q_sin = torch.repeat_interleave(q_sin, repeats=2, dim=-1)
+            # k positions
+            k_len = kh.size(1)
+            k_pos = torch.arange(k_pos_start, k_pos_start + k_len, device=device).float()
+            k_cos = torch.cos(torch.einsum('i,j->ij', k_pos, inv_freq))
+            k_sin = torch.sin(torch.einsum('i,j->ij', k_pos, inv_freq))
+            k_cos = torch.repeat_interleave(k_cos, repeats=2, dim=-1)
+            k_sin = torch.repeat_interleave(k_sin, repeats=2, dim=-1)
+
+            # expand to (batch*nhead, seq_len, head_dim)
+            bnh = qh.size(0)
+            q_cos = q_cos.unsqueeze(0).expand(bnh, -1, -1)
+            q_sin = q_sin.unsqueeze(0).expand(bnh, -1, -1)
+            k_cos = k_cos.unsqueeze(0).expand(bnh, -1, -1)
+            k_sin = k_sin.unsqueeze(0).expand(bnh, -1, -1)
+
+            qh = qh * q_cos + rotate_every_two(qh) * q_sin
+            kh = kh * k_cos + rotate_every_two(kh) * k_sin
+
         attn_scores = torch.bmm(qh, kh.transpose(1, 2))
         attn_scores = attn_scores / math.sqrt(self.head_dim)
 
