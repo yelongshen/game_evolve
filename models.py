@@ -152,6 +152,17 @@ class PolicyTransformer(nn.Module):
         
         # input projection layer.
         self.input_proj = nn.Linear(token_dim, d_model)
+        # learned ID projector: map the raw agent-id vector (first id_dim entries)
+        # into d_model space so the model can more easily compare identities.
+        # We assume the token layout is [agent_id (id_dim), other_features (rest)]
+        self.token_dim = token_dim
+        # reserve 10 dims for the non-id features (actions/reward bits)
+        self.id_dim = max(1, token_dim - 10)
+        self.id_mlp = nn.Sequential(
+            nn.Linear(self.id_dim, d_model),
+            nn.LayerNorm(d_model),
+            nn.ReLU()
+        )
         # Replace built-in TransformerEncoder with a small stack of cached layers
         self.layers = nn.ModuleList([TransformerEncoderLayer(d_model=d_model, nhead=nhead)
                                      for _ in range(num_layers)])
@@ -226,11 +237,26 @@ class PolicyTransformer(nn.Module):
         if seq_tokens.dim() == 2:
             seq_len = seq_tokens.size(0)
             x = self.input_proj(seq_tokens)  # (seq_len, d_model)
+            # project id slice and add to projection
+            try:
+                id_slice = seq_tokens[:, :self.id_dim]
+                id_emb = self.id_mlp(id_slice)
+                x = x + id_emb
+            except Exception:
+                pass
             x = x + self.pos_emb[:seq_len]
             x = x.unsqueeze(1)  # (seq_len, batch=1, d_model)
         elif seq_tokens.dim() == 3:
             batch, seq_len, _ = seq_tokens.shape
             x = self.input_proj(seq_tokens)  # (batch, seq_len, d_model)
+            # project id slices and add
+            try:
+                id_slice = seq_tokens[:, :seq_len, :self.id_dim] if False else seq_tokens[:, :seq_len, :self.id_dim]
+                # id_mlp handles last-dim projection
+                id_emb = self.id_mlp(seq_tokens[:, :seq_len, :self.id_dim])  # (batch, seq_len, d_model)
+                x = x + id_emb
+            except Exception:
+                pass
             x = x + self.pos_emb[:seq_len].unsqueeze(0)
             x = x.permute(1, 0, 2)  # (seq_len, batch, d_model)
         else:
@@ -322,7 +348,13 @@ class PolicyTransformer(nn.Module):
         if new_tokens.dim() == 2:
             # new_tokens is (new_seq_len, token_dim) -> make batch dim
             new_seq_len, token_dim = new_tokens.shape
-            new_x = self.input_proj(new_tokens) + self.pos_emb[start_pos:start_pos + new_seq_len]
+            # apply id projection if available
+            try:
+                id_slice = new_tokens[:, :self.id_dim]
+                id_emb = self.id_mlp(id_slice)
+                new_x = self.input_proj(new_tokens) + id_emb + self.pos_emb[start_pos:start_pos + new_seq_len]
+            except Exception:
+                new_x = self.input_proj(new_tokens) + self.pos_emb[start_pos:start_pos + new_seq_len]
             new_x = new_x.unsqueeze(1)  # (new_len, batch=1, d_model)
         else:
             raise ValueError("new_tokens must be 2D or 3D tensor")
