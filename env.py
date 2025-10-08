@@ -264,6 +264,9 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
     # For model agent cooperate ratio by age region
     model_coop_count = [0 for _ in range(4)]
     model_total_count = [0 for _ in range(4)]
+    # For eye_for_eye agent cooperate ratio by age region
+    eye_coop_count = [0 for _ in range(4)]
+    eye_total_count = [0 for _ in range(4)]
     # Divide ages into four regions (quartiles)
     age_bins = [0, history_len // 4, history_len // 2, 3 * history_len // 4, history_len + 1]
     def get_age_region(age):
@@ -307,6 +310,14 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
                     if action == 1:
                         model_coop_count[region] += 1
                     model_total_count[region] += 1
+                # track eye_for_eye agents cooperation by age region
+                if agent_type == 'eye_for_eye':
+                    agent = env.agents[idx]
+                    age = len(agent.history)
+                    region = get_age_region(age)
+                    if action == 1:
+                        eye_coop_count[region] += 1
+                    eye_total_count[region] += 1
             # Record agent type's reward by age region
             for idx, reward, agent_type in [(ai_idx, ri, env.agents[ai_idx].agent_type), (aj_idx, rj, env.agents[aj_idx].agent_type)]:
                 agent = env.agents[idx]
@@ -340,6 +351,17 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
             # reset model agent coop counters
             model_coop_count = [0 for _ in range(4)]
             model_total_count = [0 for _ in range(4)]
+            # Log eye_for_eye agent cooperate ratio by age region
+            eye_lines = []
+            for region in range(4):
+                coop = eye_coop_count[region]
+                total = eye_total_count[region]
+                ratio = coop * 1.0 / total if total > 0 else None
+                eye_lines.append(f"region {region+1}: coop_ratio={ratio:.4f} (n={total})" if ratio is not None else f"region {region+1}: -")
+            logger.info(f"Eye-for-eye agent cooperate ratio by age region at step {t}:\n" + "\n".join(eye_lines))
+            # reset eye_for_eye coop counters
+            eye_coop_count = [0 for _ in range(4)]
+            eye_total_count = [0 for _ in range(4)]
             # Collect all agent types present in any region
             all_types = set()
             for region in range(4):

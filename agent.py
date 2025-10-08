@@ -41,10 +41,9 @@ class Agent(BasicAgent):
             q_values = self.shared_model.forward_with_cache(self.kv_cache, partner_token.to(self.shared_model.pos_emb.device), position_idx=pos_idx)
             # Option: small noise for initial exploration (kept small); sampling from softmax
             #q_values = q_values + torch.randn_like(q_values) * 0.01
-            temp = 0.8
+            temp = 0.3
             logits = q_values / temp
             probs = torch.softmax(logits, dim=-1)
-
             # epsilon still allows uniform random exploration
             if random.random() < self.epsilon:
                 a = int(random.randrange(0, probs.size(-1)))
