@@ -316,7 +316,7 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
     # prepare lr_schedule_kwargs defaulting total_steps to 'steps' and warmup fraction to 0.1
     lr_kwargs = dict(lr_schedule_kwargs or {})
     if 'total_steps' not in lr_kwargs:
-        lr_kwargs['total_steps'] = 100000
+        lr_kwargs['total_steps'] = 10000
     if 'warmup_frac' not in lr_kwargs:
         lr_kwargs['warmup_frac'] = 0.01
 
