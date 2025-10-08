@@ -74,6 +74,25 @@ class MixedCommunity(Community):
             ['model'] * n_model
         )
 
+
+class RuleCommunity(Community):
+    def __init__(self, N, history_len, id_dim, agent_id_generator):
+        super().__init__(N, history_len, id_dim, agent_id_generator)
+        n_coop = int(0.10 * N)
+        n_eye = int(0.30 * N)
+        n_agg = int(0.25 * N)
+        n_def = int(0.10 * N)
+        n_rand = int(0.05 * N)
+        n_model = N - n_coop - n_eye - n_agg - n_def - n_rand
+        self.agent_types = (
+            ['always_cooperate'] * n_coop +
+            ['eye_for_eye'] * n_eye +
+            ['aggressive_eye_for_eye'] * n_agg +
+            ['always_defect'] * n_def +
+            ['random'] * n_rand +
+            ['model'] * n_model
+        )
+
 import random
 import csv
 import time
@@ -151,6 +170,8 @@ class PopulationEnv:
             community = KindCommunity(N, history_len, id_dim, self.agent_id_generator)
         elif community_type == 'mixed':
             community = MixedCommunity(N, history_len, id_dim, self.agent_id_generator)
+        elif community_type == 'rule':
+            community = RuleCommunity(N, history_len, id_dim, self.agent_id_generator)
         else:
             raise ValueError(f"Unknown community_type: {community_type}")
         agent_types = community.get_agent_types()
