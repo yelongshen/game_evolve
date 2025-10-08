@@ -180,6 +180,12 @@ class PopulationEnv:
         self.time = 0
         self.payoff = get_payoff(payoff_type)
         self.sample_weight = 8 # how many times more likely to sample from buffer than not
+        # If running behavioral cloning on eye-for-eye rollouts, avoid heavy duplication
+        try:
+            if trainer_algo == 'q-bc':
+                self.sample_weight = 1
+        except Exception:
+            pass
 
     def create_agents(self, idx, agent_type=None):
         atype = agent_type

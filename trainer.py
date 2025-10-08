@@ -457,13 +457,38 @@ class Trainer:
         t_flat = targets.view(batch_size * max_len)
         loss = F.cross_entropy(q_flat, t_flat, ignore_index=ignore_idx)
 
+        # Diagnostics: compute accuracy over non-padded positions and average confidence
+        with torch.no_grad():
+            probs_flat = torch.softmax(q_flat, dim=-1)
+            preds_flat = probs_flat.argmax(dim=-1)
+            valid_mask = (t_flat != ignore_idx)
+            if valid_mask.any():
+                correct = (preds_flat[valid_mask] == t_flat[valid_mask]).float().mean().item()
+                # average max-prob confidence on valid positions
+                avg_conf = probs_flat[valid_mask].max(dim=-1).values.mean().item()
+                # class distribution among targets (for debugging imbalance)
+                try:
+                    class_counts = torch.bincount(t_flat[valid_mask], minlength=n_actions).cpu().tolist()
+                except Exception:
+                    class_counts = None
+            else:
+                correct = 0.0
+                avg_conf = 0.0
+                class_counts = None
+
         self.opt.zero_grad(set_to_none=True)
         loss.backward()
         nn.utils.clip_grad_norm_(self.train_model.parameters(), 1.0)
         self.opt.step()
 
-        self.last_update_stats = {'q_bc_loss': float(loss.item())}
-        logger.info("Q-BC update (q-bc): q_bc_loss=%.6f", self.last_update_stats['q_bc_loss'])
+        # record diagnostics
+        self.last_update_stats = {
+            'q_bc_loss': float(loss.item()),
+            'q_bc_acc': float(correct),
+            'q_bc_avg_conf': float(avg_conf),
+            'q_bc_class_counts': class_counts,
+        }
+        logger.info("Q-BC update (q-bc): q_bc_loss=%.6f acc=%.4f avg_conf=%.4f", self.last_update_stats['q_bc_loss'], self.last_update_stats['q_bc_acc'], self.last_update_stats['q_bc_avg_conf'])
         return True
     
     def _run_q_agg(self, prepared):
