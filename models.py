@@ -243,7 +243,9 @@ class PolicyTransformer(nn.Module):
         out = x
         for layer in self.layers:
             out = layer.forward(out, src_mask=src_mask)
-        return out.permute(1, 0, 2) if seq_tokens.dim() == 3 else out
+        # normalize return shape: always return (batch, seq_len, d_model)
+        # internal representation `out` is (seq_len, batch, d_model)
+        return out.permute(1, 0, 2)
 
 
     def forward(self, seq_tokens):
@@ -262,8 +264,8 @@ class PolicyTransformer(nn.Module):
             values = self.value_head(out)  # (batch, seq_len, 1)
 
             # reshape to (batch, seq_len)
-            probs = torch.sigmoid(logits).squeeze(-1).permute(1, 0)
-            values = values.squeeze(-1).permute(1, 0)
+            probs = torch.sigmoid(logits).squeeze(-1)
+            values = values.squeeze(-1)
             return probs, values
         elif self.mode =='qnet':
             qvalues = self.head(out).contiguous()  # (batch, seq_len, n_actions)

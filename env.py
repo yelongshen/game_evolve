@@ -112,7 +112,7 @@ logger = logging.getLogger(__name__)
 
 
 class PopulationEnv:
-    def __init__(self, N=50, history_len=4, device="cpu", lr=1e-2, p_death=0.001, id_dim=64, verbose=False, trainer_update_every=256, trainer_ckpt_dir=None, payoff_type='co', community_type='fair', algorithm='q'):
+    def __init__(self, N=50, history_len=4, device="cpu", lr=1e-2, p_death=0.001, id_dim=64, verbose=False, trainer_update_every=256, trainer_ckpt_dir=None, payoff_type='co', community_type='fair', algorithm='q', lr_schedule='cosine', lr_schedule_kwargs=None):
         self.N = N
         self.p_death = p_death
         self.device = device
@@ -152,7 +152,12 @@ class PopulationEnv:
         # global replay buffer
         self.global_buffer = GlobalReplayBuffer()
         # trainer (synchronous trainer) working on shared_model
-        self.trainer = Trainer(shared_model, self.global_buffer, device=self.device, algorithm=trainer_algo, ckpt_dir=trainer_ckpt_dir)
+        # forward any lr_schedule settings to Trainer if supported
+        try:
+            self.trainer = Trainer(shared_model, self.global_buffer, device=self.device, algorithm=trainer_algo, ckpt_dir=trainer_ckpt_dir, lr_schedule=lr_schedule, lr_schedule_kwargs=lr_schedule_kwargs)
+        except TypeError:
+            # fallback for older Trainer signatures
+            self.trainer = Trainer(shared_model, self.global_buffer, device=self.device, algorithm=trainer_algo, ckpt_dir=trainer_ckpt_dir)
 
         # track per-agent-type reward statistics
         self.type_rewards = defaultdict(float)
@@ -287,7 +292,7 @@ class PopulationEnv:
         return results
 
 
-def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_csv=None, pairs_per_step=20, train_every=50, verbose=False, device="cpu", payoff_type='co', community_type='fair', algorithm='q'):
+def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_csv=None, pairs_per_step=20, train_every=50, verbose=False, device="cpu", payoff_type='co', community_type='fair', algorithm='q', lr_schedule='cosine', lr_schedule_kwargs=None):
     # For model agent cooperate ratio by age region
     model_coop_count = [0 for _ in range(4)]
     model_total_count = [0 for _ in range(4)]
@@ -308,7 +313,14 @@ def run_sim(steps=10000, N=50, history_len=4, p_death=1e-3, log_every=500, out_c
     if verbose:
         logging.basicConfig(level=logging.INFO)
 
-    env = PopulationEnv(N=N, history_len=history_len, p_death=p_death, verbose=verbose, device=device, payoff_type=payoff_type, community_type=community_type, algorithm=algorithm)
+    # prepare lr_schedule_kwargs defaulting total_steps to 'steps' and warmup fraction to 0.1
+    lr_kwargs = dict(lr_schedule_kwargs or {})
+    if 'total_steps' not in lr_kwargs:
+        lr_kwargs['total_steps'] = 100000
+    if 'warmup_frac' not in lr_kwargs:
+        lr_kwargs['warmup_frac'] = 0.01
+
+    env = PopulationEnv(N=N, history_len=history_len, p_death=p_death, verbose=verbose, device=device, payoff_type=payoff_type, community_type=community_type, algorithm=algorithm, lr_schedule=lr_schedule, lr_schedule_kwargs=lr_kwargs)
     coop_history = []
     avg_reward_history = []
     global_avg_history = []

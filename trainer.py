@@ -6,6 +6,7 @@ import torch
 import random
 import torch.optim as optim
 import numpy as np
+import math
 from utils import action_to_bits, reward_to_6bits
 import torch.nn.functional as F
 import logging
@@ -15,7 +16,7 @@ import torch.nn as nn
 logger = logging.getLogger(__name__)
 class Trainer:
     def __init__(self, model, buffer, device='cpu', ppo_epochs=1, clip_eps=0.8,
-                 value_coef=0.01, value_clip=0.2, lam=0.95, entropy_coef=0.01, gamma=0.95, lr=3e-4, min_buffer_size=256, normalize_returns=True, ckpt_dir=None, algorithm='ppo'):
+                 value_coef=0.01, value_clip=0.2, lam=0.95, entropy_coef=0.01, gamma=0.95, lr=1e-4, min_buffer_size=256, normalize_returns=True, ckpt_dir=None, algorithm='ppo', lr_schedule='cosine', lr_schedule_kwargs=None):
         # synchronous trainer that trains on a deep copy of the shared model
         self.shared_model = model
         self.buffer = buffer
@@ -49,6 +50,48 @@ class Trainer:
             assert self.algorithm == 'q-bay'
 
         self.opt = optim.Adam(self.train_model.parameters(), lr=lr)
+        # optional learning rate scheduler
+        self.scheduler = None
+        if lr_schedule is not None:
+            kwargs = lr_schedule_kwargs or {}
+            total_steps = kwargs.get('total_steps', None)
+            end_lr = kwargs.get('end_lr', 0.0)
+            if lr_schedule == 'linear':
+                if total_steps is None:
+                    raise ValueError("lr_schedule='linear' requires total_steps in lr_schedule_kwargs")
+                init_lr = lr
+                final_factor = float(end_lr) / float(init_lr) if init_lr > 0 else 0.0
+                def make_lambda(total, final_factor):
+                    return lambda step: 1.0 - min(step, total) / float(total) * (1.0 - final_factor)
+                self.scheduler = optim.lr_scheduler.LambdaLR(self.opt, lr_lambda=make_lambda(total_steps, final_factor))
+            elif lr_schedule == 'cosine':
+                # Cosine annealing with linear warmup from 0 -> peak over warmup_frac of total_steps
+                total_steps = total_steps or kwargs.get('total_steps', 10000)
+                warmup_frac = float(kwargs.get('warmup_frac', 0.1))
+                if total_steps is None:
+                    raise ValueError("lr_schedule='cosine' requires total_steps in lr_schedule_kwargs or default")
+                init_lr = lr
+                final_factor = float(end_lr) / float(init_lr) if init_lr > 0 else 0.0
+                def make_warmup_cosine(total, warmup_frac, final_factor):
+                    warmup_steps = max(1, int(total * warmup_frac))
+                    def lr_lambda(step):
+                        step = float(step)
+                        if step <= 0.0:
+                            return 0.0
+                        if step < warmup_steps:
+                            return step / float(warmup_steps)
+                        progress = min((step - warmup_steps) / max(1, total - warmup_steps), 1.0)
+                        cosine = 0.5 * (1.0 + math.cos(math.pi * progress))
+                        return final_factor + (1.0 - final_factor) * cosine
+                    return lr_lambda
+                self.scheduler = optim.lr_scheduler.LambdaLR(self.opt, lr_lambda=make_warmup_cosine(total_steps, warmup_frac, final_factor))
+            elif lr_schedule == 'step':
+                step_size = kwargs.get('step_size', 1000)
+                gamma = kwargs.get('gamma', 0.1)
+                self.scheduler = optim.lr_scheduler.StepLR(self.opt, step_size=step_size, gamma=gamma)
+            else:
+                raise ValueError(f"Unsupported lr_schedule: {lr_schedule}")
+            logger.info("Initialized LR scheduler=%s kwargs=%s", lr_schedule, kwargs)
         # track how many samples we've processed from the buffer (approx)
         # self._last_update_count = 0
         # checkpoint storage (list of dicts) and optional on-disk directory
@@ -68,6 +111,15 @@ class Trainer:
             fname = os.path.join(self.ckpt_dir, f"ckpt_{len(self.checkpoints):04d}.pt")
             torch.save(state, fname)
         return len(self.checkpoints) - 1
+
+    def _step_scheduler(self):
+        """Advance the LR scheduler by one step (if configured)."""
+        if self.scheduler is None:
+            return
+        try:
+            self.scheduler.step()
+        except Exception:
+            logger.exception("LR scheduler step failed")
 
     def _sync_to_shared_model(self):
         # copy train_model weights into the shared model (in-place)
@@ -787,6 +839,16 @@ class Trainer:
 
         if not updated:
             return False
+
+        # advance LR scheduler (if configured)
+        try:
+            self._step_scheduler()
+            # log current learning rate for first param group
+            if self.opt and len(self.opt.param_groups) > 0:
+                cur_lr = float(self.opt.param_groups[0]['lr'])
+                logger.info("Current learning rate after scheduler step: %g", cur_lr)
+        except Exception:
+            logger.exception("Failed to step scheduler")
 
         # save checkpoint and sync weights back into the shared model
         ckpt_idx = self._save_checkpoint()
