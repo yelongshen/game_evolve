@@ -11,7 +11,7 @@ class Agent(BasicAgent):
         self.device = device
         self.shared_model = shared_model
         self.kv_cache = self.shared_model.build_cache(self.death_age)
-        self.epsilon = float(exploration_eps)
+        self.epsilon = 0.0 # float(exploration_eps)
 
     def act(self, partner_id):
         # Action selection (previously the acting path of step())
@@ -44,6 +44,7 @@ class Agent(BasicAgent):
             temp = 0.3
             logits = q_values / temp
             probs = torch.softmax(logits, dim=-1)
+
             # epsilon still allows uniform random exploration
             if random.random() < self.epsilon:
                 a = int(random.randrange(0, probs.size(-1)))
