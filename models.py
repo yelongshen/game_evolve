@@ -34,22 +34,36 @@ class TransformerEncoderLayer(nn.Module):
         self.norm2 = nn.LayerNorm(d_model)
         self.activation = F.relu
 
-    def forward(self, src, src_mask=None):
+    def forward(self, src, src_mask=None, debug=False):
         # src: (seq_len, batch, d_model)
         # project q/k/v
         q = self.q_proj(src)
         k = self.k_proj(src)
         v = self.v_proj(src)
-        
-        attn_out = self._multihead_attn(q, k, v, attn_mask=src_mask, q_pos_start=0, k_pos_start=0)
-        src2 = src + self.dropout(attn_out)
-        src2 = self.norm1(src2)
-        ff = self.linear2(self.dropout(self.activation(self.linear1(src2))))
-        out = src2 + self.dropout(ff)
-        out = self.norm2(out)
-        return out
+        if not debug:
+            attn_out = self._multihead_attn(q, k, v, attn_mask=src_mask, q_pos_start=0, k_pos_start=0)
+            src2 = src + self.dropout(attn_out)
+            src2 = self.norm1(src2)
+            ff = self.linear2(self.dropout(self.activation(self.linear1(src2))))
+            out = src2 + self.dropout(ff)
+            out = self.norm2(out)
+            return out
+        else:
+            attn_out, attn_debug = self._multihead_attn(q, k, v, attn_mask=src_mask, q_pos_start=0, k_pos_start=0, debug=True)
+            src2 = src + self.dropout(attn_out)
+            src2 = self.norm1(src2)
+            ff = self.linear2(self.dropout(self.activation(self.linear1(src2))))
+            out = src2 + self.dropout(ff)
+            out = self.norm2(out)
+            # collect a compact debug dict
+            layer_debug = {
+                'attn': attn_debug,
+                'src_before': src.detach().cpu(),
+                'src_after': out.detach().cpu(),
+            }
+            return out, layer_debug
 
-    def forward_incremental(self, past, new_x, position_idx=0):
+    def forward_incremental(self, past, new_x, position_idx=0, debug=False):
         # past: (past_len, batch, d_model) or None
         # new_x: (new_len, batch, d_model)
         # we compute attention where queries=new_x and keys/values=concat(past, new_x)
@@ -60,37 +74,39 @@ class TransformerEncoderLayer(nn.Module):
         k_new = self.k_proj(new_x)
         v_new = self.v_proj(new_x)
 
-        #print('position_idx', position_idx)
-        #print('q', q)
-        #print('k', k_new)
-        #print('v', v_new)
-        
+        # write new projections into the preallocated past buffers
         past[0][position_idx:position_idx + k_new.size(0)] = k_new
         past[1][position_idx:position_idx + v_new.size(0)] = v_new
 
+        # slice keys/values for attention (past + new)
         k = past[0][0:position_idx + k_new.size(0)]
         v = past[1][0:position_idx + v_new.size(0)]
-        attn_out = self._multihead_attn(q, k, v, q_pos_start=position_idx, k_pos_start=0)
-        
-        #print('attn_out', attn_out)
 
-        src2 = new_x + self.dropout(attn_out)
-        #print('src1', src2)
+        # compute attention where queries=new_x and keys/values=k,v
+        if not debug:
+            attn_out = self._multihead_attn(q, k, v, q_pos_start=position_idx, k_pos_start=0)
+            src2 = new_x + self.dropout(attn_out)
+            src2 = self.norm1(src2)
+            ff = self.linear2(self.dropout(self.activation(self.linear1(src2))))
+            out = src2 + self.dropout(ff)
+            out = self.norm2(out)
+            return out
+        else:
+            attn_out, attn_debug = self._multihead_attn(q, k, v, q_pos_start=position_idx, k_pos_start=0, debug=True)
+            src2 = new_x + self.dropout(attn_out)
+            src2 = self.norm1(src2)
+            ff = self.linear2(self.dropout(self.activation(self.linear1(src2))))
+            out = src2 + self.dropout(ff)
+            out = self.norm2(out)
+            layer_debug = {
+                'attn': attn_debug,
+                'src_before': new_x.detach().cpu(),
+                'src_after': out.detach().cpu(),
+                'position_idx': position_idx,
+            }
+            return out, layer_debug
 
-        src2 = self.norm1(src2)
-        #print('norm1', self.norm1.weight)
-        #print('src2', src2)
-
-        ff = self.linear2(self.dropout(self.activation(self.linear1(src2))))
-        out = src2 + self.dropout(ff)
-        #print('ff', out)
-
-        out = self.norm2(out)
-        #print('out', out)
-
-        return out
-
-    def _multihead_attn(self, q, k, v, attn_mask=None, q_pos_start=None, k_pos_start=None):
+    def _multihead_attn(self, q, k, v, attn_mask=None, q_pos_start=None, k_pos_start=None, debug=False):
         """Lightweight multi-head attention using explicit q/k/v projections.
 
         q, k, v: (seq_len, batch, d_model)
@@ -136,15 +152,15 @@ class TransformerEncoderLayer(nn.Module):
             # inv freq for half dims
             inv_freq = 1.0 / (10000 ** (torch.arange(0, head_dim, 2, device=device).float() / float(head_dim)))
             # q positions
-            q_len = qh.size(1)
-            q_pos = torch.arange(q_pos_start, q_pos_start + q_len, device=device).float()
+            q_len_local = qh.size(1)
+            q_pos = torch.arange(q_pos_start, q_pos_start + q_len_local, device=device).float()
             q_cos = torch.cos(torch.einsum('i,j->ij', q_pos, inv_freq))
             q_sin = torch.sin(torch.einsum('i,j->ij', q_pos, inv_freq))
             q_cos = torch.repeat_interleave(q_cos, repeats=2, dim=-1)  # (q_len, head_dim)
             q_sin = torch.repeat_interleave(q_sin, repeats=2, dim=-1)
             # k positions
-            k_len = kh.size(1)
-            k_pos = torch.arange(k_pos_start, k_pos_start + k_len, device=device).float()
+            k_len_local = kh.size(1)
+            k_pos = torch.arange(k_pos_start, k_pos_start + k_len_local, device=device).float()
             k_cos = torch.cos(torch.einsum('i,j->ij', k_pos, inv_freq))
             k_sin = torch.sin(torch.einsum('i,j->ij', k_pos, inv_freq))
             k_cos = torch.repeat_interleave(k_cos, repeats=2, dim=-1)
@@ -169,9 +185,8 @@ class TransformerEncoderLayer(nn.Module):
                 mask = attn_mask.unsqueeze(0).expand(batch * self.nhead, -1, -1)
             else:
                 mask = attn_mask
-            attn_scores.masked_fill(attn_mask < 0.1, float('-inf'))
-            #attn_scores = attn_scores + mask
-
+            attn_scores = attn_scores.masked_fill(mask < 0.1, float('-inf'))
+            #attn_scores.masked_fill(mask < 0.1, float('-inf'))
         attn_weights = torch.softmax(attn_scores, dim=-1)
         attn_out = torch.bmm(attn_weights, vh)  # (batch*nhead, q_len, head_dim)
 
@@ -182,6 +197,16 @@ class TransformerEncoderLayer(nn.Module):
 
         # final linear projection
         attn_out = self.out_proj(attn_out)
+        if debug:
+            # return small debug dict with detached CPU tensors to avoid device issues
+            debug_info = {
+                'qh': qh.detach().cpu(),
+                'kh': kh.detach().cpu(),
+                'vh': vh.detach().cpu(),
+                'attn_scores': attn_scores.detach().cpu(),
+                'attn_weights': attn_weights.detach().cpu(),
+            }
+            return attn_out, debug_info
         return attn_out
 
 
@@ -211,10 +236,10 @@ class PolicyTransformer(nn.Module):
 
         
         # model weight initialization
+        
         for p in self.parameters():
             if p.dim() > 1:
                 nn.init.normal_(p, mean=0.0, std=0.02)
-
         self.mode = mode
         if mode =='vnet':
             self.head = nn.Linear(d_model, 1)      # policy head (logit)
@@ -228,15 +253,16 @@ class PolicyTransformer(nn.Module):
                 # Current environment uses 2 discrete actions, so output dim = 2 actions * 2 (mu,logvar)
                 self.head = nn.Linear(d_model, self.n_actions * 2)
             # initialize to small values
-            nn.init.zeros_(self.head.weight)
-            nn.init.zeros_(self.head.bias)
+            #nn.init.zeros_(self.head.weight)
+            #nn.init.zeros_(self.head.bias)
             # Per-position learnable rescaling (FiLM-style) to adapt q-value ranges
             # pos_scale and pos_bias have shape (max_len, n_actions) and are applied
             # to the raw head outputs so the model can adjust output ranges by position.
             max_len = self.pos_emb.size(0)
             self.pos_scale = nn.Parameter(torch.ones(max_len, self.n_actions))
             self.pos_bias = nn.Parameter(torch.zeros(max_len, self.n_actions))
-            
+
+    
 
     def build_cache(self, prealloc_len):
         """Allocate and return an empty (zero) KV cache preallocated to `prealloc_len`.
@@ -265,7 +291,7 @@ class PolicyTransformer(nn.Module):
             preallocated.append((k_buf, v_buf))
         return preallocated
 
-    def _encode(self, seq_tokens):
+    def _encode(self, seq_tokens, debug=False):
         """Internal helper: project inputs, add positional embeddings, apply
         the transformer layers with a causal mask and return the final layer
         outputs `out` with shape (seq_len, batch, d_model).
@@ -306,14 +332,27 @@ class PolicyTransformer(nn.Module):
         src_mask = torch.tril(torch.ones((seq_len, seq_len), device=x.device, dtype=x.dtype))
 
         out = x
+        layer_debugs = []
         for layer in self.layers:
-            out = layer.forward(out, src_mask=src_mask)
+            if not debug:
+                out = layer.forward(out, src_mask=src_mask)
+                layer_debugs.append(None)
+            else:
+                res = layer.forward(out, src_mask=src_mask, debug=True)
+                if isinstance(res, tuple):
+                    out, ldbg = res
+                    layer_debugs.append(ldbg)
+                else:
+                    out = res
+                    layer_debugs.append(None)
         # normalize return shape: always return (batch, seq_len, d_model)
         # internal representation `out` is (seq_len, batch, d_model)
-        return out.permute(1, 0, 2)
+        if not debug:
+            return out.permute(1, 0, 2)
+        return out.permute(1, 0, 2), layer_debugs
 
 
-    def forward(self, seq_tokens):
+    def forward(self, seq_tokens, debug=False):
         """Full forward that returns per-timestep probabilities and values.
 
         Input: `seq_tokens` can be either (seq_len, token_dim) or
@@ -321,7 +360,11 @@ class PolicyTransformer(nn.Module):
         `(batch, seq_len)` each. Padding should be handled by the caller via
         masks.
         """
-        out = self._encode(seq_tokens)
+        enc = self._encode(seq_tokens, debug=debug)
+        if debug:
+            out, layer_debugs = enc
+        else:
+            out = enc
         # out: (batch, seq_len, d_model) -> project to logits/values per timestep
 
         if self.mode == 'vnet':
@@ -331,6 +374,8 @@ class PolicyTransformer(nn.Module):
             # reshape to (batch, seq_len)
             probs = torch.sigmoid(logits).squeeze(-1)
             values = values.squeeze(-1)
+            if debug:
+                return probs, values, layer_debugs
             return probs, values
         elif self.mode =='qnet':
             qvalues = self.head(out).contiguous()  # (batch, seq_len, n_actions)
@@ -340,6 +385,8 @@ class PolicyTransformer(nn.Module):
             scale = self.pos_scale[:seq_len].unsqueeze(0).to(qvalues.device)
             bias = self.pos_bias[:seq_len].unsqueeze(0).to(qvalues.device)
             qvalues = qvalues * scale + bias
+            if debug:
+                return qvalues, layer_debugs
             return qvalues
         elif self.mode == 'qnet-bay':
             # head output shape: (batch, seq_len, n_actions*2)
@@ -355,7 +402,7 @@ class PolicyTransformer(nn.Module):
             mu = mu * scale + bias
             return mu, logvar
         
-    def forward_with_cache(self, memories, new_tokens, position_idx=0):
+    def forward_with_cache(self, memories, new_tokens, position_idx=0, debug=False):
         """Compute outputs for `new_tokens` (seq_len_new, token_dim) using cached
         per-layer `memories` (as returned by build_cache). This does not mutate
         the provided memories unless `update_memories=True` in which case the
@@ -403,12 +450,21 @@ class PolicyTransformer(nn.Module):
         # new_x is now (new_len, batch, d_model)
         new_layer_outputs = [new_x]
         out = new_x
+        layer_debugs = []
         # For each layer, attend over past (memories[layer_idx+0]) and new outputs
         for l_idx, layer in enumerate(self.layers):
-            out = layer.forward_incremental(memories[l_idx], out, position_idx=start_pos)
+            if not debug:
+                out = layer.forward_incremental(memories[l_idx], out, position_idx=start_pos)
+                layer_debugs.append(None)
+            else:
+                res = layer.forward_incremental(memories[l_idx], out, position_idx=start_pos, debug=True)
+                if isinstance(res, tuple):
+                    out, ldbg = res
+                    layer_debugs.append(ldbg)
+                else:
+                    out = res
+                    layer_debugs.append(None)
             new_layer_outputs.append(out)
-
-            #print('layer', l_idx, out)
 
         # final representation is last token of last layer (batch, d_model)
         rep = out[-1, 0, :]
@@ -441,4 +497,6 @@ class PolicyTransformer(nn.Module):
             scale = self.pos_scale[pos].to(mu.device)
             bias = self.pos_bias[pos].to(mu.device)
             mu = mu * scale + bias
+            if debug:
+                return (mu, logvar), layer_debugs
             return mu, logvar
