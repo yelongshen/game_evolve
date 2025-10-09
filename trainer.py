@@ -523,10 +523,16 @@ class Trainer:
                     class_counts = torch.bincount(t_flat[valid_mask], minlength=n_actions).cpu().tolist()
                 except Exception:
                     class_counts = None
+                # distribution of predicted actions on valid positions
+                try:
+                    pred_counts = torch.bincount(preds_flat[valid_mask], minlength=n_actions).cpu().tolist()
+                except Exception:
+                    pred_counts = None
             else:
                 correct = 0.0
                 avg_conf = 0.0
                 class_counts = None
+                pred_counts = None
 
         self.opt.zero_grad(set_to_none=True)
         loss.backward()
@@ -539,8 +545,9 @@ class Trainer:
             'q_bc_acc': float(correct),
             'q_bc_avg_conf': float(avg_conf),
             'q_bc_class_counts': class_counts,
+            'q_bc_pred_counts': pred_counts,
         }
-        logger.info("Q-BC update (q-bc): q_bc_loss=%.6f acc=%.4f avg_conf=%.4f", self.last_update_stats['q_bc_loss'], self.last_update_stats['q_bc_acc'], self.last_update_stats['q_bc_avg_conf'])
+        logger.info("Q-BC update (q-bc): q_bc_loss=%.6f acc=%.4f avg_conf=%.4f labels=%s preds=%s", self.last_update_stats['q_bc_loss'], self.last_update_stats['q_bc_acc'], self.last_update_stats['q_bc_avg_conf'], self.last_update_stats['q_bc_class_counts'], self.last_update_stats['q_bc_pred_counts'])
         return True
     
     def _run_q_agg(self, prepared):
@@ -857,7 +864,7 @@ class Trainer:
         if self.steps_since_sync >= self.update_per_sync:
             self._sync_to_shared_model()
             self.steps_since_sync = 0
-            logger.info("Synced to shared model after %d updates", self.update_per_sync)
+            logger.info("Synced to shared model after %d updates..........................", self.update_per_sync)
 
         return True
     

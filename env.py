@@ -205,7 +205,9 @@ class PopulationEnv:
         elif atype == 'aggressive_eye_for_eye':
             agent = AggressiveEyeForEyeAgent(id_=idx, history_len=self.history_len, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
         else:
-            agent = Agent(id_=idx, shared_model=copy.deepcopy(self.trainer.shared_model).to(self.device), history_len=self.history_len, device=self.device, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
+            # Use the shared_model reference so agents see updated weights when Trainer syncs.
+            # (previously a deepcopy caused agents to hold stale weights until replacement)
+            agent = Agent(id_=idx, shared_model=self.trainer.shared_model, history_len=self.history_len, device=self.device, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx), deterministic=False)
         agent.agent_type = atype
         return agent
     

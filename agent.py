@@ -6,12 +6,14 @@ from utils import action_to_bits, reward_to_6bits
 from agents_simple import BasicAgent
 
 class Agent(BasicAgent):
-    def __init__(self, id_, shared_model, history_len=4, device="cpu", id_dim=32, agent_id=None, exploration_eps=0.01):
+    def __init__(self, id_, shared_model, history_len=4, device="cpu", id_dim=32, agent_id=None, exploration_eps=0.01, deterministic=False):
         super().__init__(id_, history_len, id_dim, agent_id)
         self.device = device
         self.shared_model = shared_model
         self.kv_cache = self.shared_model.build_cache(self.death_age)
         self.epsilon = 0.0 # float(exploration_eps)
+        # if deterministic is True, choose argmax action during inference
+        self.deterministic = deterministic
 
     def act(self, partner_id):
         # Action selection (previously the acting path of step())
@@ -45,16 +47,22 @@ class Agent(BasicAgent):
             logits = q_values / temp
             probs = torch.softmax(logits, dim=-1)
 
-            # epsilon still allows uniform random exploration
-            if random.random() < self.epsilon:
-                a = int(random.randrange(0, probs.size(-1)))
-                # compute log-prob of uniform choice for bookkeeping
-                logp = torch.log(probs.new_tensor(1.0 / float(probs.size(-1))))
-            else:
-                m = torch.distributions.Categorical(probs=probs)
-                a_tensor = m.sample()
+            # deterministic argmax option (useful for eval / debugging)
+            if self.deterministic:
+                a_tensor = torch.argmax(probs, dim=-1)
                 a = int(a_tensor.item())
-                logp = m.log_prob(a_tensor)
+                logp = torch.log(probs[a])
+            else:
+                # epsilon still allows uniform random exploration
+                if random.random() < self.epsilon:
+                    a = int(random.randrange(0, probs.size(-1)))
+                    # compute log-prob of uniform choice for bookkeeping
+                    logp = torch.log(probs.new_tensor(1.0 / float(probs.size(-1))))
+                else:
+                    m = torch.distributions.Categorical(probs=probs)
+                    a_tensor = m.sample()
+                    a = int(a_tensor.item())
+                    logp = m.log_prob(a_tensor)
 
             return a, logp, q_values[a]
         
