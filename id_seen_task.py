@@ -46,18 +46,18 @@ def sample_batch(batch_size, seq_len, id_dim, pool, reuse_prob=0.5):
 
 
 def train_overfit_small():
-    device = 'cpu'
+    device = 'cuda:0'
     id_dim = 16
     token_dim = id_dim + 10
     pool = make_id_pool(id_dim, pool_size=40)
+    seq_len = 128
 
     # small transformer
-    model = PolicyTransformer(token_dim=token_dim, d_model=64, nhead=4, num_layers=2, max_len=16, mode='qnet').to(device)
-    opt = optim.Adam(model.parameters(), lr=1e-3)
+    model = PolicyTransformer(token_dim=token_dim, d_model=64, nhead=4, num_layers=4, max_len=seq_len, mode='qnet').to(device)
+    opt = optim.Adam(model.parameters(), lr=1e-4)
 
-    batch_size = 64
-    seq_len = 8
-    epochs = 300
+    batch_size = 16
+    epochs = 30000
 
     for epoch in range(1, epochs + 1):
         model.train()
@@ -81,7 +81,14 @@ def train_overfit_small():
                 logits = model.forward(tokens)
                 preds = logits.argmax(dim=-1)
                 acc = (preds == labels).float().mean().item()
-            print(f"epoch {epoch:03d} loss={loss.item():.4f} acc={acc:.4f}")
+                # count label distribution and prediction distribution
+                labels_flat = labels.view(-1)
+                preds_flat = preds.view(-1)
+                n_pos_labels = int((labels_flat == 1).sum().item())
+                n_neg_labels = int((labels_flat == 0).sum().item())
+                n_pos_preds = int((preds_flat == 1).sum().item())
+                n_neg_preds = int((preds_flat == 0).sum().item())
+            print(f"epoch {epoch:03d} loss={loss.item():.4f} acc={acc:.4f} labels(+/-)={n_pos_labels}/{n_neg_labels} preds(+/-)={n_pos_preds}/{n_neg_preds}")
 
     # final evaluation on held-out sample
     model.eval()
@@ -89,9 +96,14 @@ def train_overfit_small():
     with torch.no_grad():
         logits = model.forward(tokens)
         preds = logits.argmax(dim=-1)
-    print('\nSample predictions (pred vs label)')
-    for i in range(preds.size(0)):
-        print('seq', i, 'preds:', preds[i].tolist(), 'labels:', labels[i].tolist())
+    # final counts for held-out sample
+    final_labels = labels.view(-1)
+    final_preds = preds.view(-1)
+    final_n_pos_labels = int((final_labels == 1).sum().item())
+    final_n_neg_labels = int((final_labels == 0).sum().item())
+    final_n_pos_preds = int((final_preds == 1).sum().item())
+    final_n_neg_preds = int((final_preds == 0).sum().item())
+    print(f"Held-out counts labels(+/-)={final_n_pos_labels}/{final_n_neg_labels} preds(+/-)={final_n_pos_preds}/{final_n_neg_preds}")
 
 if __name__ == '__main__':
     train_overfit_small()
