@@ -64,17 +64,7 @@ def train_overfit_small():
         tokens, labels = sample_batch(batch_size, seq_len, id_dim, pool, reuse_prob=0.4)
         tokens = tokens.to(device)
         labels = labels.to(device)
-
-        logits = model.forward(tokens)  # (batch, seq_len, n_actions)
-        # we want to predict action 1 if seen before else 0
-        # cross_entropy expects (N, C) and targets (N,)
-        b, s, c = logits.shape
-        loss = F.cross_entropy(logits.view(b * s, c), labels.view(b * s))
-
-        opt.zero_grad()
-        loss.backward()
-        opt.step()
-
+        
         if epoch % 20 == 0 or epoch == 1:
             model.eval()
             with torch.no_grad():
@@ -89,6 +79,17 @@ def train_overfit_small():
                 n_pos_preds = int((preds_flat == 1).sum().item())
                 n_neg_preds = int((preds_flat == 0).sum().item())
             print(f"epoch {epoch:03d} loss={loss.item():.4f} acc={acc:.4f} labels(+/-)={n_pos_labels}/{n_neg_labels} preds(+/-)={n_pos_preds}/{n_neg_preds}")
+            model.train()
+
+        logits = model.forward(tokens)  # (batch, seq_len, n_actions)
+        # we want to predict action 1 if seen before else 0
+        # cross_entropy expects (N, C) and targets (N,)
+        b, s, c = logits.shape
+        loss = F.cross_entropy(logits.view(b * s, c), labels.view(b * s))
+
+        opt.zero_grad()
+        loss.backward()
+        opt.step()
 
     # final evaluation on held-out sample
     model.eval()
