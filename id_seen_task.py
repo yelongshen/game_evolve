@@ -46,7 +46,7 @@ def sample_batch(batch_size, seq_len, id_dim, pool, reuse_prob=0.5):
 
 
 def train_overfit_small():
-    device = 'cuda:0'
+    device = 'cuda:2'
     id_dim = 16
     token_dim = id_dim + 10
     pool = make_id_pool(id_dim, pool_size=40000)
