@@ -78,7 +78,6 @@ def train_overfit_small():
                 n_neg_labels = int((labels_flat == 0).sum().item())
                 n_pos_preds = int((preds_flat == 1).sum().item())
                 n_neg_preds = int((preds_flat == 0).sum().item())
-            print(f"epoch {epoch:03d} loss={loss.item():.4f} acc={acc:.4f} labels(+/-)={n_pos_labels}/{n_neg_labels} preds(+/-)={n_pos_preds}/{n_neg_preds}")
             model.train()
 
         logits = model.forward(tokens)  # (batch, seq_len, n_actions)
@@ -90,6 +89,9 @@ def train_overfit_small():
         opt.zero_grad()
         loss.backward()
         opt.step()
+
+        if epoch % 20 == 0 or epoch == 1:
+            print(f"epoch {epoch:03d} loss={loss.item():.4f} acc={acc:.4f} labels(+/-)={n_pos_labels}/{n_neg_labels} preds(+/-)={n_pos_preds}/{n_neg_preds}")
 
     # final evaluation on held-out sample
     model.eval()
