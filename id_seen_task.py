@@ -46,14 +46,14 @@ def sample_batch(batch_size, seq_len, id_dim, pool, reuse_prob=0.5):
 
 
 def train_overfit_small():
-    device = 'cuda:4'
+    device = 'cuda:6'
     id_dim = 64
     token_dim = id_dim + 10
     pool = make_id_pool(id_dim, pool_size=40000)
     seq_len = 128
 
     # small transformer
-    model = PolicyTransformer(token_dim=token_dim, d_model=64, nhead=4, num_layers=4, max_len=seq_len, mode='qnet').to(device)
+    model = PolicyTransformer(token_dim=token_dim, d_model=256, nhead=8, num_layers=6, max_len=seq_len, mode='qnet').to(device)
     opt = optim.Adam(model.parameters(), lr=1e-4)
 
     batch_size = 16
