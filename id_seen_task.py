@@ -46,8 +46,8 @@ def sample_batch(batch_size, seq_len, id_dim, pool, reuse_prob=0.5):
 
 
 def train_overfit_small():
-    device = 'cuda:2'
-    id_dim = 16
+    device = 'cuda:4'
+    id_dim = 64
     token_dim = id_dim + 10
     pool = make_id_pool(id_dim, pool_size=40000)
     seq_len = 128
@@ -93,6 +93,9 @@ def train_overfit_small():
     # final evaluation on held-out sample
     model.eval()
     tokens, labels = sample_batch(8, seq_len, id_dim, pool, reuse_prob=0.6)
+    tokens = tokens.to(device)
+    labels = labels.to(device)
+
     with torch.no_grad():
         logits = model.forward(tokens)
         preds = logits.argmax(dim=-1)
