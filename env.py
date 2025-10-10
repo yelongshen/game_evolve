@@ -147,7 +147,8 @@ class PopulationEnv:
             trainer_algo = 'gpo'
 
         # create shared model
-        shared_model = PolicyTransformer(token_dim=id_dim + 10, d_model=256, num_layers=6, mode=model_mode, max_len=history_len + 1).to(self.device)
+        # d_model=64, nhead=8, num_layers=8, max_len=16,
+        shared_model = PolicyTransformer(token_dim=id_dim + 10, d_model=512, nhead=8, num_layers=8, mode=model_mode, max_len=history_len + 1).to(self.device)
         self.shared_model = shared_model
         # global replay buffer
         self.global_buffer = GlobalReplayBuffer()
@@ -205,9 +206,7 @@ class PopulationEnv:
         elif atype == 'aggressive_eye_for_eye':
             agent = AggressiveEyeForEyeAgent(id_=idx, history_len=self.history_len, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
         else:
-            # Use the shared_model reference so agents see updated weights when Trainer syncs.
-            # (previously a deepcopy caused agents to hold stale weights until replacement)
-            agent = Agent(id_=idx, shared_model=self.trainer.shared_model, history_len=self.history_len, device=self.device, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx), deterministic=False)
+            agent = Agent(id_=idx, shared_model=copy.deepcopy(self.trainer.shared_model).to(self.device), history_len=self.history_len, device=self.device, id_dim=self.id_dim, agent_id=self.agent_id_generator(idx))
         agent.agent_type = atype
         return agent
     

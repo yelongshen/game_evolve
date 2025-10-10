@@ -29,7 +29,7 @@ if __name__ == "__main__":
     algorithm = sys.argv[4] if len(sys.argv) > 4 else 'q'
     try:
         # make group smaller. N=20
-        run_sim(steps=800000, N=20, history_len=256, p_death=0.002, log_every=300, out_csv="sim_log_new.csv", pairs_per_step=8, train_every=16, verbose=verbose, device=device, payoff_type=payoff_type, community_type=community_type, algorithm=algorithm)
+        run_sim(steps=800000, N=20, history_len=128, p_death=0.002, log_every=300, out_csv="sim_log_new.csv", pairs_per_step=8, train_every=16, verbose=verbose, device=device, payoff_type=payoff_type, community_type=community_type, algorithm=algorithm)
         print("done", time.time() - start)
     finally:
         # Ensure all logs are flushed and file handlers closed, even on exception
