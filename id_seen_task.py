@@ -49,7 +49,7 @@ def train_overfit_small():
     device = 'cuda:0'
     id_dim = 16
     token_dim = id_dim + 10
-    pool = make_id_pool(id_dim, pool_size=40)
+    pool = make_id_pool(id_dim, pool_size=40000)
     seq_len = 128
 
     # small transformer
