@@ -57,11 +57,11 @@ def train_overfit_small():
     opt = optim.Adam(model.parameters(), lr=1e-4)
 
     batch_size = 16
-    epochs = 30000
+    epochs = 100000
 
     for epoch in range(1, epochs + 1):
         model.train()
-        tokens, labels = sample_batch(batch_size, seq_len, id_dim, pool, reuse_prob=0.6)
+        tokens, labels = sample_batch(batch_size, seq_len, id_dim, pool, reuse_prob=0.4)
         tokens = tokens.to(device)
         labels = labels.to(device)
 
