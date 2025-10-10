@@ -53,7 +53,7 @@ def train_overfit_small():
     seq_len = 128
 
     # small transformer
-    model = PolicyTransformer(token_dim=token_dim, d_model=256, nhead=8, num_layers=6, max_len=seq_len, mode='qnet').to(device)
+    model = PolicyTransformer(token_dim=token_dim, d_model=512, nhead=8, num_layers=8, max_len=seq_len, mode='qnet').to(device)
     opt = optim.Adam(model.parameters(), lr=1e-4)
 
     batch_size = 16
