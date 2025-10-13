@@ -78,12 +78,12 @@ class MixedCommunity(Community):
 class RuleCommunity(Community):
     def __init__(self, N, history_len, id_dim, agent_id_generator):
         super().__init__(N, history_len, id_dim, agent_id_generator)
-        n_coop = int(0.05 * N)
-        n_eye = int(0.30 * N)
-        n_agg = int(0.30 * N)
+        n_coop = int(0.10 * N)
+        n_eye = int(0.20 * N)
+        n_agg = int(0.20 * N)
 
-        n_def = int(0.10 * N)
-        n_rand = int(0.05 * N)
+        n_def = int(0.20 * N)
+        n_rand = int(0.10 * N)
         n_model = N - n_coop - n_eye - n_agg - n_def - n_rand
         self.agent_types = (
             ['always_cooperate'] * n_coop +
