@@ -99,6 +99,7 @@ class Trainer:
         self.ckpt_dir = ckpt_dir
         self.update_per_sync = 4  # how many updates per sync from shared model
         self.steps_since_sync = 0
+        self.global_step = 0
         if ckpt_dir is not None:
             os.makedirs(ckpt_dir, exist_ok=True)
 
@@ -853,13 +854,14 @@ class Trainer:
             # log current learning rate for first param group
             if self.opt and len(self.opt.param_groups) > 0:
                 cur_lr = float(self.opt.param_groups[0]['lr'])
-                logger.info("Update step %d: Current learning rate after scheduler step: %g", global_step, cur_lr)
+                logger.info("Update step %d: Current learning rate after scheduler step: %g", self.global_step, cur_lr)
         except Exception:
             logger.exception("Failed to step scheduler")
 
         # save checkpoint and sync weights back into the shared model
         ckpt_idx = self._save_checkpoint()
 
+        self.global_step += 1
         self.steps_since_sync += 1
         if self.steps_since_sync >= self.update_per_sync:
             self._sync_to_shared_model()
