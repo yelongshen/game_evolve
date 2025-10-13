@@ -66,7 +66,7 @@ class Trainer:
                 self.scheduler = optim.lr_scheduler.LambdaLR(self.opt, lr_lambda=make_lambda(total_steps, final_factor))
             elif lr_schedule == 'cosine':
                 # Cosine annealing with linear warmup from 0 -> peak over warmup_frac of total_steps
-                total_steps = total_steps or kwargs.get('total_steps', 10000)
+                total_steps = total_steps or kwargs.get('total_steps', 100000)
                 warmup_frac = float(kwargs.get('warmup_frac', 0.1))
                 if total_steps is None:
                     raise ValueError("lr_schedule='cosine' requires total_steps in lr_schedule_kwargs or default")

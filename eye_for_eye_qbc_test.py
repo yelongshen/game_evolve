@@ -34,14 +34,15 @@ def sample_eye_for_eye_episodes(batch_size, seq_len, id_dim, n_agents=4):
 
 
 def train_eye_for_eye_qbc():
-    device = 'cpu'
-    id_dim = 16
+    device = 'cuda:6'
+    id_dim = 64
     token_dim = id_dim + 10
-    seq_len = 64
+    seq_len = 128
+    model = PolicyTransformer(token_dim=token_dim, d_model=128, nhead=8, num_layers=4, max_len=seq_len + 1, mode='qnet').to(device)
+    opt = optim.Adam(model.parameters(), lr=1e-4)
+    
     n_agents = 4
-    model = PolicyTransformer(token_dim=token_dim, d_model=64, nhead=4, num_layers=4, max_len=seq_len, mode='qnet').to(device)
-    opt = optim.Adam(model.parameters(), lr=1e-3)
-
+    
     batch_size = 32
     epochs = 5000
 
