@@ -853,7 +853,7 @@ class Trainer:
             # log current learning rate for first param group
             if self.opt and len(self.opt.param_groups) > 0:
                 cur_lr = float(self.opt.param_groups[0]['lr'])
-                logger.info("Current learning rate after scheduler step: %g", cur_lr)
+                logger.info("Update step %d: Current learning rate after scheduler step: %g", global_step, cur_lr)
         except Exception:
             logger.exception("Failed to step scheduler")
 
