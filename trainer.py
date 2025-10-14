@@ -16,7 +16,7 @@ import torch.nn as nn
 logger = logging.getLogger(__name__)
 class Trainer:
     def __init__(self, model, buffer, device='cpu', ppo_epochs=1, clip_eps=0.8,
-                 value_coef=0.01, value_clip=0.2, lam=0.95, entropy_coef=0.01, gamma=0.95, lr=1e-4, min_buffer_size=256, normalize_returns=True, ckpt_dir=None, algorithm='ppo', lr_schedule='cosine', lr_schedule_kwargs=None):
+                 value_coef=0.01, value_clip=0.2, lam=0.95, entropy_coef=0.01, gamma=0.95, lr=1e-3, min_buffer_size=512, normalize_returns=True, ckpt_dir=None, algorithm='ppo', lr_schedule='cosine', lr_schedule_kwargs=None):
         # synchronous trainer that trains on a deep copy of the shared model
         self.shared_model = model
         self.buffer = buffer
@@ -49,7 +49,7 @@ class Trainer:
         if self.shared_model.mode == 'qnet-bay':
             assert self.algorithm == 'q-bay'
 
-        self.opt = optim.Adam(self.train_model.parameters(), lr=lr)
+        self.opt = optim.Adam(self.train_model.parameters(), lr=lr, weight_decay=0.01)
         # optional learning rate scheduler
         self.scheduler = None
         if lr_schedule is not None:

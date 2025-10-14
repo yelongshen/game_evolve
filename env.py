@@ -190,7 +190,7 @@ class PopulationEnv:
         # If running behavioral cloning on eye-for-eye rollouts, avoid heavy duplication
         try:
             if trainer_algo == 'q-bc':
-                self.sample_weight = 4
+                self.sample_weight = 2
         except Exception:
             pass
 
