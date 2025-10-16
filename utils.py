@@ -20,6 +20,13 @@ JAIL_PAYOFF = {
     (0, 0): (0.0, 0.0),
 }
 
+JAIL2_PAYOFF = {
+    (1, 1): (1.0, 1.0),
+    (1, 0): (-0.2, 1.2),
+    (0, 1): (1.2, -0.2),
+    (0, 0): (0.0, 0.0),
+}
+
 DEFECTION_PAYOFF = {
     (1, 1): (1.0, 1.0),
     (1, 0): (-3.0, 2.0),
@@ -40,6 +47,7 @@ PAYOFF_TYPES = {
     'jail': JAIL_PAYOFF,
     'defect': DEFECTION_PAYOFF,
     'alt': ALT_PAYOFF,
+    'jail2': JAIL2_PAYOFF,
 }
 
 class RandomPayoff:
